@@ -30,6 +30,7 @@ const enemyImageSrcs = [
 const bossImages = [
     './assets_hvm/images/meme/boss/boss-meme-01.webp',
     './assets_hvm/images/meme/boss/boss-meme-02.webp',
+    './assets_hvm/images/meme/boss/boss-meme-04.webp',
     './assets_hvm/images/meme/boss/boss-meme-03.webp'
 ];
 
@@ -204,9 +205,9 @@ function adjustBossProperties(distance) {
 }
 
 function spawnBoss(bossHealth, bossShootInterval) {
-    const bossImageIndex = Math.floor((previousDistance / bossSpawnDistance) % bossImages.length);
+    let randomImageBoss = Math.floor(Math.random() * 3) + 1;
     const bossImage = new Image();
-    bossImage.src = bossImages[bossImageIndex];
+    bossImage.src = bossImages[randomImageBoss];
     bossImage.onload = () => {
         currentBoss = {
             x: canvas.width / 2 - 50,
@@ -214,7 +215,7 @@ function spawnBoss(bossHealth, bossShootInterval) {
             width: 100,
             height: 100,
             health: bossHealth,
-            speed: 2,
+            speed: 1.3,
             image: bossImage,
             shootInterval: bossShootInterval,
             shootTimer: 0
@@ -457,7 +458,7 @@ function drawPlayContent() {
     // Afficher les vies et le score
     context.fillStyle = '#000000';
     context.fillText(`Vies: ${player.lives}`, 10, 80);
-    context.fillText(`Score: ${score.toFixed(2)}`, 10, 100); // Afficher le score avec deux décimales
+    context.fillText(`Score: ${score.toFixed(0)}`, 10, 100); // Afficher le score avec deux décimales
     context.fillText(`Boulette: ${paperBalls}`, 10, 120);
 
     // Incrémenter la durée du jeu et ajuster la vitesse et la probabilité d'apparition des ennemis
