@@ -608,8 +608,8 @@ function drawPlayContent() {
     context.fillText(`Vies: ${player.lives}`, 10, 80);
     context.fillText(`Score: ${score.toFixed(0)}`, 10, 100);
     context.fillText(`Boulette: ${paperBalls}`, 10, 120);
+    context.fillText(`Distance: ${distance}`, 10, 140);
 
-    // Incrémenter la durée du jeu et ajuster la vitesse et la probabilité d'apparition des ennemis
     gameDuration += 1;
     if (gameDuration % speedIncrementInterval === 0) {
         enemySpeed += speedIncrement;
@@ -630,7 +630,7 @@ function explosionImageShow() {
         if (elapsed < fadeDuration) {
             context.globalAlpha = 1 - elapsed / fadeDuration; 
             context.drawImage(explosionImage, explosion.x, explosion.y, explosion.width, explosion.height); 
-            context.globalAlpha = 1.0; // Réinitialiser l'opacité
+            context.globalAlpha = 1.0;
         } else {
             explosion = null; // Réinitialiser l'explosion après la durée de fondu
         }

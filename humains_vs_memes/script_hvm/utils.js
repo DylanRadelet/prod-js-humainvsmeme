@@ -9,21 +9,25 @@ const inventoryButton = document.getElementById('inventoryButton');
 const confirmModal = document.getElementById('confirmModal');
 const confirmYes = document.getElementById('confirmYes');
 const confirmNo = document.getElementById('confirmNo');
+const distanceButton = document.getElementById('distanceButton');
+const distanceModal = document.getElementById('distanceModal');
+const distanceOptions = document.getElementById('distanceOptions');
+const confirmDistance = document.getElementById('confirmDistance');
+const closeDistanceModal = document.getElementById('closeDistanceModal');
 const speedIncrementInterval = 1000;
 const speedIncrement = 0.1;
 const spawnIncrementInterval = 1000;
 const spawnIncrement = 0.001;
 const ColorBackBTN = "#C2C2C2";
 const ColorTXT = "#000000";
-
-let currentMode = 'menu';
-let backButton = { x: 10, y: 25, size: 20 };
-let gameLoopId;
-
 const imgGameOver = new Image();
 imgGameOver.src = './assets_hvm/images/Game_Over.png'; 
 
 // Variables de jeu
+let currentMode = 'menu';
+let selectedDistance = 0;
+let backButton = { x: 10, y: 25, size: 20 };
+let gameLoopId;
 let projectiles = [];
 let enemies = [];
 let enemySpeed = 0.5;
@@ -33,7 +37,7 @@ let score = 0;
 let paperBalls = 0;
 let multiplicateurPaperBalls = 1;
 let achatDeLaVie = 0;
-let player = { x: canvas.width / 2 - 50, y: canvas.height - 200, width: 100, height: 100, lives: 5+achatDeLaVie };
+let player = { x: canvas.width / 2 - 50, y: canvas.height - 200, width: 100, height: 100, lives: 5 };
 
 let totalPaperBalls = 0;
 let totalMonstersKilled = 0;
@@ -146,7 +150,7 @@ let gameOver = false;
 
 function showGameOver() {
     gameOver = true;
-    context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
+    context.clearRect(0, 0, canvas.width, canvas.height); 
 
     const imgWidth = 340; 
     const imgHeight = 100; 
@@ -167,7 +171,6 @@ function handleGameOverKey(event) {
 }
 
 function handleGameOverClick(event) {
-    // Retirer les écouteurs d'événements après un clic ou un touchstart
     canvas.removeEventListener('click', handleGameOverClick);
     canvas.removeEventListener('touchstart', handleGameOverClick, { passive: false });
 
@@ -250,32 +253,29 @@ function startGameAfterCountdown() {
     }, 1000);
 }
 
-// Fonction pour réinitialiser le jeu
-function resetGame() {
+function resetGame(distance = 0) {
     gameOver = false;
     gameStarted = false;
     bossActive = false;
     countdown = 3;
-    player.lives = 5;
+    player.lives = 4 + achatDeLaVie;
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - player.height - 10;
     projectiles = [];
     enemies = [];
     score = 0;
     paperBalls = 0;
-    gameDuration = 0;
-    enemySpeed = 0.5;
+    gameDuration = distance / enemySpeed; 
+    enemySpeed = 0.5; 
     spawnProbability = 0.01;
 }
 
-// Fonction pour mettre à jour les statistiques dans le menu
 function updateMenuStats() {
     document.getElementById('distance-max').textContent = previousDistance;
     document.getElementById('meme-kill').textContent = totalMonstersKilled;
     document.getElementById('boulette-papier').textContent = totalPaperBalls;
 }
 
-// Fonction pour mettre à jour les statistiques dans le menu
 function updateStats() {
     document.getElementById('distance-max').textContent = previousDistance;
     document.getElementById('meme-kill').textContent = totalMonstersKilled; 
@@ -351,4 +351,58 @@ canvas.addEventListener('touchstart', (event) => {
     }
 }, { passive: false });
 
+distanceButton.addEventListener('click', () => {
+    showDistanceModal();
+});
 
+closeDistanceModal.addEventListener('click', () => {
+    hideDistanceModal();
+});
+
+confirmDistance.addEventListener('click', () => {
+    startGameAtSelectedDistance();
+    hideDistanceModal();
+});
+
+function showDistanceModal() {
+    updateDistanceOptions();
+    distanceModal.style.display = 'flex';
+}
+
+function hideDistanceModal() {
+    distanceModal.style.display = 'none';
+}
+
+function updateDistanceOptions() {
+    distanceOptions.innerHTML = '';
+    for (let i = 0; i <= previousDistance; i += 1000) {
+        if (i > 0) {
+            const option = document.createElement('button');
+            option.textContent = `${i} mètres`;
+            option.addEventListener('click', () => {
+                selectedDistance = i;
+                updateSelectedOption(option);
+            });
+            distanceOptions.appendChild(option);
+        }
+    }
+}
+
+function updateSelectedOption(selectedOption) {
+    Array.from(distanceOptions.children).forEach(option => {
+        option.style.backgroundColor = '';
+    });
+    selectedOption.style.backgroundColor = 'lightgray';
+}
+
+function startGameAtSelectedDistance() {
+    showCanvas();
+    resetGame(selectedDistance);
+    currentMode = 'play';
+    startGameAfterCountdown();
+    gameLoop();
+}
+
+distanceButton.addEventListener('click', () => {
+    showDistanceModal();
+});

@@ -18,10 +18,10 @@
             </div>
             
             <div class="allBTN">
-                <button id="playButton">Jouer</button>
-                <button id="characterButton">Personnage</button>
-                <button id="inventoryButton">Shop</button>
-                <button id="inventoryButton">Choix distance</button>
+                <button id="playButton" class="hover-btn-menu">Jouer</button>
+                <button id="characterButton" class="hover-btn-menu">Personnage</button>
+                <button id="inventoryButton" class="hover-btn-menu">Shop</button>
+                <button id="distanceButton" class="hover-btn-menu">Choix distance</button>
             </div>
 
             <div class="score-player">
@@ -43,14 +43,18 @@
         </div>
     </div>
 
-        <!-- Modal de distance -->
-    <div id="distanceModal" style="display: none;">
+    <!-- Modal de distance -->
+    <div id="distanceModal">
         <div>
             <h2>Choisissez la distance de départ</h2>
             <div id="distanceOptions"></div>
-            <button id="confirmDistance">Confirmer</button>
-            <button id="closeDistanceModal">Annuler</button>
+            <div id="btn-dist">
+                <button id="confirmDistance">Confirmer</button>
+                <button id="closeDistanceModal">Annuler</button> 
+            </div>
+            
         </div>
     </div>
+    <div id="overlay"></div>
 </body>
 </html>

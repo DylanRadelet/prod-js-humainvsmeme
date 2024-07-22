@@ -54,22 +54,23 @@ function startGameAfterCountdown() {
     }, 1000);
 }
 
-function resetGame() {
+function resetGame(distance = 0) {
     gameOver = false;
     gameStarted = false;
-    countdown = 3;
     bossActive = false;
-    player.lives = 5;
+    countdown = 3;
+    player.lives = 5 + achatDeLaVie;
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - player.height - 10;
     projectiles = [];
     enemies = [];
     score = 0;
     paperBalls = 0;
-    gameDuration = 0;
-    enemySpeed = 0.5;
+    gameDuration = distance / enemySpeed; // Ajuster la durée du jeu en fonction de la distance
+    enemySpeed = 0.5 + distance / 1000 * speedIncrement; // Ajuster la vitesse de l'ennemi en fonction de la distance
     spawnProbability = 0.01;
 }
+
 
 // Fonction pour mettre à jour les statistiques dans le menu
 function updateMenuStats() {
