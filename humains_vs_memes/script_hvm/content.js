@@ -104,6 +104,9 @@ function drawInventoryContent() {
     drawInventoryButtons();
 
     drawBackButton();
+
+    drawShowBoulettes();
+
 }
 
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
@@ -144,6 +147,12 @@ const ColorBackBTN = "#C2C2C2";
 const ColorTXT = "#000000";
 
 // Fonction pour dessiner les boutons de l'inventaire
+
+function drawShowBoulettes(){
+    context.font = 'bold 16px Arial';
+    context.fillText(`Vous avez ${totalPaperBalls} boulettes de papier`, 35, 600);
+}
+
 function drawInventoryButtons() {
     const buttonWidth = 200;
     const buttonHeight = 50;
@@ -159,19 +168,19 @@ function drawInventoryButtons() {
     roundRect(context, startX, startY, buttonWidth, buttonHeight, borderRadius, true, false);
     context.fillStyle = ColorTXT;
     context.font = '16px Arial';
-    context.fillText(`Vie: ${lifeCost} boulettes`, startX + 35, startY + 30);
+    context.fillText(`Vie: ${lifeCost} bls`, startX + 55, startY + 30);
 
     // (Acheter de la force)
     context.fillStyle = ColorBackBTN;
     roundRect(context, startX, startY + buttonHeight + buttonPadding, buttonWidth, buttonHeight, borderRadius, true, false);
     context.fillStyle = ColorTXT;
-    context.fillText(`Force: ${strengthCost} boulettes`, startX + 30, startY + buttonHeight + buttonPadding + 30);
+    context.fillText(`Force: ${strengthCost} bls`, startX + 50, startY + buttonHeight + buttonPadding + 30);
 
     // (Acheter un multiplicateur boulette)
     context.fillStyle = ColorBackBTN;
     roundRect(context, startX, startY + (buttonHeight + buttonPadding) * 2, buttonWidth, buttonHeight, borderRadius, true, false);
     context.fillStyle = ColorTXT;
-    context.fillText(`Multiplicateur: ${multiplierCost} boulettes`, startX , startY + (buttonHeight + buttonPadding) * 2 + 30);
+    context.fillText(`Multiplicateur: ${multiplierCost} bls`, startX + 20, startY + (buttonHeight + buttonPadding) * 2 + 30);
 }
 
 // Gestion des clics sur les boutons de l'inventaire
@@ -695,9 +704,9 @@ function spawnEnemy() {
         for (let i = 0; i < enemiesPerCycle; i++) {
             const enemyWidth = 50;
             const enemyHeight = 50;
-            const x = Math.random() * (canvas.width - enemyWidth);  // Position x aléatoire sur la largeur de l'écran
+            const x = Math.random() * (canvas.width - enemyWidth);
             const y = -enemyHeight;
-            const imageIndex = (i + gameDuration / spawnInterval) % enemyImages.length; // Utiliser différents indices d'image
+            const imageIndex = (i + gameDuration / spawnInterval) % enemyImages.length;
             const image = enemyImages[imageIndex];
             enemies.push({ x, y, width: enemyWidth, height: enemyHeight, health: enemyHealth, image });
             console.log("Enemy spawned at:", x, y, "with image index:", imageIndex, "and health:", enemyHealth);
