@@ -45,6 +45,12 @@ let selectedImageIndex = 0;
 let imagesLoaded = 0;  
 let explosion = null;
 
+let lifeCost = 25;
+let strengthCost = 100;
+let multiplierCost = 50;
+
+let projectileForce = 1;
+
 // Charger les images des personnages
 imageSrcs.forEach((src, index) => {
     const img = new Image();
@@ -89,18 +95,135 @@ function saveSelectedCharacter(index) {
     localStorage.setItem('selectedCharacterIndex', index);
 }
 
+// Fonction pour dessiner le contenu de l'inventaire
 function drawInventoryContent() {
     console.log("drawInventoryContent called");
     context.clearRect(0, 0, canvas.width, canvas.height);  // Efface le canvas
     context.fillStyle = '#000000';
-    context.font = '20px Arial';
-    context.fillText('Inventaire', 60, 100);
+    context.font = '30px Arial';
+    context.fillText('Shop', 150, 100);
 
-    // Dessiner les items de l'inventaire (exemple)
-    // Vous pouvez ajouter ici la logique pour afficher les items de l'inventaire
+    // Dessiner les boutons de l'inventaire
+    drawInventoryButtons();
 
     drawBackButton();  // Dessine le bouton retour sous forme de croix
 }
+
+// Fonction pour dessiner les boutons de l'inventaire
+function drawInventoryButtons() {
+    const buttonWidth = 200;
+    const buttonHeight = 50;
+    const buttonPadding = 20;
+    const startX = (canvas.width - buttonWidth) / 2;
+    const startY = 150;
+
+    // Dessiner le premier bouton (Acheter de la vie)
+    context.fillStyle = '#FF0000';
+    context.fillRect(startX, startY, buttonWidth, buttonHeight);
+    context.fillStyle = '#FFFFFF';
+    context.font = '16px Arial';
+    context.fillText(`Vie: ${lifeCost} boulettes`, startX + 10, startY + 30);
+
+    // Dessiner le deuxième bouton (Acheter de la force)
+    context.fillStyle = '#00FF00';
+    context.fillRect(startX, startY + buttonHeight + buttonPadding, buttonWidth, buttonHeight);
+    context.fillStyle = '#FFFFFF';
+    context.fillText(`Force: ${strengthCost} boulettes`, startX + 10, startY + buttonHeight + buttonPadding + 30);
+
+    // Dessiner le troisième bouton (Acheter un multiplicateur)
+    context.fillStyle = '#0000FF';
+    context.fillRect(startX, startY + (buttonHeight + buttonPadding) * 2, buttonWidth, buttonHeight);
+    context.fillStyle = '#FFFFFF';
+    context.fillText(`Multiplicateur: ${multiplierCost} boulettes`, startX + 10, startY + (buttonHeight + buttonPadding) * 2 + 30);
+}
+
+// Gestion des clics sur les boutons de l'inventaire
+canvas.addEventListener('click', (event) => {
+    if (currentMode !== 'inventory') return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const buttonWidth = 150;
+    const buttonHeight = 50;
+    const buttonPadding = 20;
+    const startX = (canvas.width - buttonWidth) / 2;
+    const startY = 150;
+
+    if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY && mouseY <= startY + buttonHeight) {
+        if (totalPaperBalls >= lifeCost) {
+            totalPaperBalls -= lifeCost;
+            achatDeLaVie += 1;
+            lifeCost = Math.floor(lifeCost * 5.5);
+            updateStats();
+            drawInventoryContent();
+            saveCosts();
+        }
+    }
+
+    if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY + buttonHeight + buttonPadding && mouseY <= startY + buttonHeight + buttonPadding + buttonHeight) {
+        if (totalPaperBalls >= strengthCost) {
+            totalPaperBalls -= strengthCost;
+            projectileForce += 1;
+            strengthCost = Math.floor(strengthCost * 10.5);
+            updateStats();
+            drawInventoryContent();
+            saveCosts();
+        }
+    }
+
+    if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY + (buttonHeight + buttonPadding) * 2 && mouseY <= startY + (buttonHeight + buttonPadding) * 2 + buttonHeight) {
+        if (totalPaperBalls >= multiplierCost) {
+            totalPaperBalls -= multiplierCost;
+            multiplicateurPaperBalls += 1;
+            multiplierCost = Math.floor(multiplierCost * 15.5);
+            updateStats();
+            drawInventoryContent();
+            saveCosts(); 
+        }
+    }
+});
+
+// Gestion du curseur pointeur lors du survol des boutons de l'inventaire
+canvas.addEventListener('mousemove', (event) => {
+    if (currentMode !== 'inventory') return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const buttonWidth = 150;
+    const buttonHeight = 50;
+    const buttonPadding = 20;
+    const startX = (canvas.width - buttonWidth) / 2;
+    const startY = 150;
+
+    let hovering = false;
+
+    // Vérifier le survol sur le premier bouton
+    if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY && mouseY <= startY + buttonHeight) {
+        hovering = true;
+    }
+
+    // Vérifier le survol sur le deuxième bouton
+    if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY + buttonHeight + buttonPadding && mouseY <= startY + buttonHeight + buttonPadding + buttonHeight) {
+        hovering = true;
+    }
+
+    // Vérifier le survol sur le troisième bouton
+    if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY + (buttonHeight + buttonPadding) * 2 && mouseY <= startY + (buttonHeight + buttonPadding) * 2 + buttonHeight) {
+        hovering = true;
+    }
+
+    // Changer le curseur en pointeur si survol d'un bouton
+    if (hovering) {
+        canvas.style.cursor = 'pointer';
+    } else {
+        canvas.style.cursor = 'default';
+    }
+});
+
 
 // Fonction pour dessiner le contenu du mode 'character'
 function drawCharacterContent() {
@@ -266,7 +389,6 @@ function handleBossCollision() {
     // Détecter les collisions avec les projectiles du joueur
     projectiles.forEach((proj, pIndex) => {
         if (!currentBoss) {
-            console.log("handleBossCollision: currentBoss became null during iteration, skipping collision detection");
             return;
         }
         if (
@@ -276,24 +398,24 @@ function handleBossCollision() {
             proj.height + proj.y > currentBoss.y
         ) {
             projectiles.splice(pIndex, 1);
-            currentBoss.health--;
+            currentBoss.health -= projectileForce;
             if (currentBoss.health <= 0) {
                 explosion = { 
                     x: currentBoss.x, 
                     y: currentBoss.y, 
-                    width: currentBoss.width,  // Ajouter la largeur du boss
-                    height: currentBoss.height, // Ajouter la hauteur du boss
+                    width: currentBoss.width,  
+                    height: currentBoss.height, 
                     startTime: Date.now() 
-                }; // Ajouter l'explosion
-                currentBoss = null; // Supprimer le boss immédiatement
+                }; 
+                currentBoss = null; 
                 bossActive = false;
-                bossProjectiles.length = 0; // Vider tous les projectiles du boss
+                bossProjectiles.length = 0; 
 
-                // Calculer le multiplicateur de score
                 const multiplier = getScoreMultiplier(previousDistance);
-                score += 10 * multiplier; // Appliquer le multiplicateur au score pour le boss
+                score += 10 * multiplier; 
+                
 
-                paperBalls++;
+                paperBalls += 25*multiplicateurPaperBalls;
                 totalMonstersKilled++;
                 totalPaperBalls++;
                 updateStats();
@@ -364,7 +486,7 @@ function drawPlayContent() {
                 proj.height + proj.y > enemy.y
             ) {
                 projectiles.splice(pIndex, 1);
-                enemy.health--;
+                enemy.health -= projectileForce;
                 if (enemy.health <= 0) {
                     explosion = { x: enemy.x, y: enemy.y, startTime: Date.now() }; // Ajouter l'explosion
                     enemies.splice(index, 1); // Supprimer l'ennemi immédiatement
@@ -373,7 +495,7 @@ function drawPlayContent() {
                     const multiplier = getScoreMultiplier(previousDistance);
                     score += 1 * multiplier; // Appliquer le multiplicateur au score
 
-                    paperBalls++;
+                    paperBalls += 1*multiplicateurPaperBalls;
                     totalMonstersKilled++;
                     totalPaperBalls++;
                     updateStats();
@@ -455,10 +577,9 @@ function drawPlayContent() {
         }
     }
 
-    // Afficher les vies et le score
     context.fillStyle = '#000000';
     context.fillText(`Vies: ${player.lives}`, 10, 80);
-    context.fillText(`Score: ${score.toFixed(0)}`, 10, 100); // Afficher le score avec deux décimales
+    context.fillText(`Score: ${score.toFixed(0)}`, 10, 100);
     context.fillText(`Boulette: ${paperBalls}`, 10, 120);
 
     // Incrémenter la durée du jeu et ajuster la vitesse et la probabilité d'apparition des ennemis
@@ -467,11 +588,10 @@ function drawPlayContent() {
         enemySpeed += speedIncrement;
     }
 
-    // Mettre à jour la distance
     if (distance > previousDistance) {
         previousDistance = distance;
         document.getElementById('distance-max').textContent = previousDistance;
-        saveStats(); // Sauvegarder la distance si elle est plus grande
+        saveStats(); 
     }
 }
 
@@ -502,7 +622,7 @@ function adjustSpawnProbability() {
         spawnInterval = 100;
     } else {
         enemiesPerCycle = 7;
-        spawnInterval = 8;
+        spawnInterval = 100;
     }
 }
 
@@ -573,5 +693,27 @@ function loadStats() {
     updateStats();
 }
 
+function saveCosts() {
+    localStorage.setItem('lifeCost', lifeCost);
+    localStorage.setItem('strengthCost', strengthCost);
+    localStorage.setItem('multiplierCost', multiplierCost);
+    localStorage.setItem('projectileForce', projectileForce);
+    localStorage.setItem('multiplicateurPaperBalls', multiplicateurPaperBalls);
+    localStorage.setItem('achatDeLaVie', achatDeLaVie);
+}
+
+function loadCosts() {
+    lifeCost = parseInt(localStorage.getItem('lifeCost'), 10) || 10;
+    strengthCost = parseInt(localStorage.getItem('strengthCost'), 10) || 20;
+    multiplierCost = parseInt(localStorage.getItem('multiplierCost'), 10) || 30;
+    projectileForce = parseInt(localStorage.getItem('projectileForce'), 10) || 1;
+    multiplicateurPaperBalls = parseInt(localStorage.getItem('multiplicateurPaperBalls'), 10) || 1;
+    achatDeLaVie = parseInt(localStorage.getItem('achatDeLaVie'), 10) || 1;
+}
+
 // Charger les statistiques au chargement de la page
 window.addEventListener('load', loadStats);
+window.addEventListener('load', () => {
+    loadStats();
+    loadCosts();
+});

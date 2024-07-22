@@ -57,7 +57,7 @@ function startGameAfterCountdown() {
 function resetGame() {
     gameStarted = false;
     countdown = 3;
-    player.lives = 5;
+    player.lives = 5 + achatDeLaVie;
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - player.height - 10;
     projectiles = [];

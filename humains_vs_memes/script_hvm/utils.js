@@ -15,7 +15,7 @@ let backButton = { x: 10, y: 25, size: 20 };
 let gameLoopId;
 
 // Variables de jeu
-let player = { x: canvas.width / 2 - 50, y: canvas.height - 200, width: 100, height: 100, lives: 5 };
+let player = { x: canvas.width / 2 - 50, y: canvas.height - 200, width: 100, height: 100, lives: 5+achatDeLaVie };
 let projectiles = [];
 let enemies = [];
 let enemySpeed = 0.5;
@@ -27,12 +27,12 @@ const spawnIncrement = 0.001;
 let gameDuration = 0;
 let score = 0;
 let paperBalls = 0;
+let multiplicateurPaperBalls = 1;
+let achatDeLaVie = 0;
 
-// Variables pour les statistiques cumulées
 let totalPaperBalls = 0;
 let totalMonstersKilled = 0;
 
-// Fonction pour redimensionner le canvas en gardant le rapport d'aspect
 function resizeCanvas() {
     const container = document.getElementById('gameContainer');
     const containerWidth = container.clientWidth;
@@ -45,11 +45,9 @@ function resizeCanvas() {
     player.y = canvas.height - player.height - 10;
 }
 
-// Appel initial pour définir la taille du canvas
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-// Fonction pour afficher le menu principal
 function showMenu() {
     console.log("Show menu");
     stopGameLoop();
@@ -237,7 +235,7 @@ function startGameAfterCountdown() {
 function resetGame() {
     gameStarted = false;
     countdown = 3;
-    player.lives = 5;
+    player.lives = 5 + achatDeLaVie;
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - player.height - 10;
     projectiles = [];
