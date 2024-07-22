@@ -45,6 +45,13 @@ const imageRects = [];
 let selectedImageIndex = 0;  
 let imagesLoaded = 0;  
 let explosion = null;
+let damageText = {
+    text: '1000',
+    x: 0,
+    y: 0,
+    startTime: 0,
+    isActive: false
+};
 
 let lifeCost = 25;
 let strengthCost = 100;
@@ -226,7 +233,6 @@ canvas.addEventListener('click', (event) => {
     }
 });
 
-// Gestion du curseur pointeur lors du survol des boutons de l'inventaire
 canvas.addEventListener('mousemove', (event) => {
     if (currentMode !== 'inventory') return;
 
@@ -242,22 +248,18 @@ canvas.addEventListener('mousemove', (event) => {
 
     let hovering = false;
 
-    // Vérifier le survol sur le premier bouton
     if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY && mouseY <= startY + buttonHeight) {
         hovering = true;
     }
 
-    // Vérifier le survol sur le deuxième bouton
     if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY + buttonHeight + buttonPadding && mouseY <= startY + buttonHeight + buttonPadding + buttonHeight) {
         hovering = true;
     }
 
-    // Vérifier le survol sur le troisième bouton
     if (mouseX >= startX && mouseX <= startX + buttonWidth && mouseY >= startY + (buttonHeight + buttonPadding) * 2 && mouseY <= startY + (buttonHeight + buttonPadding) * 2 + buttonHeight) {
         hovering = true;
     }
 
-    // Changer le curseur en pointeur si survol d'un bouton
     if (hovering) {
         canvas.style.cursor = 'pointer';
     } else {
@@ -269,7 +271,7 @@ canvas.addEventListener('mousemove', (event) => {
 // Fonction pour dessiner le contenu du mode 'character'
 function drawCharacterContent() {
     console.log("drawCharacterContent called");
-    context.clearRect(0, 0, canvas.width, canvas.height);  // Efface le canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = '#000000';
     context.font = '20px Arial';
     context.fillText('Choix du personnage'.toUpperCase(), 60, 100);
@@ -344,8 +346,6 @@ function updateMenuIcon() {
     if (images[selectedImageIndex]) {
         menuIcon.src = images[selectedImageIndex].src;
         menuIcon.style.border = '2px solid #000000';
-        menuIcon.style.width = '75px';
-        menuIcon.style.height = '75px';
     }
 }
 
@@ -436,6 +436,7 @@ function handleBossCollision() {
         ) {
             projectiles.splice(pIndex, 1);
             currentBoss.health -= projectileForce;
+            displayDamage(projectileForce*(1000).toString(), currentBoss.x, currentBoss.y); // Afficher les dégâts sous forme de "*1000"
             if (currentBoss.health <= 0) {
                 explosion = { 
                     x: currentBoss.x, 
@@ -449,10 +450,9 @@ function handleBossCollision() {
                 bossProjectiles.length = 0; 
 
                 const multiplier = getScoreMultiplier(previousDistance);
-                score += 10 * multiplier; 
-                
+                score += 10 * multiplier;
 
-                paperBalls += 25*multiplicateurPaperBalls;
+                paperBalls += 25 * multiplicateurPaperBalls;
                 totalMonstersKilled++;
                 totalPaperBalls++;
                 updateStats();
@@ -460,6 +460,7 @@ function handleBossCollision() {
         }
     });
 }
+
 
 const distanceLogInterval = 100;
 let lastLoggedDistance = 0;
@@ -489,8 +490,7 @@ function drawPlayContent() {
         }
     });
 
-    const distance = Math.floor(gameDuration * enemySpeed );
-    //console.log(`Current distance: ${distance}`);
+    const distance = Math.floor(gameDuration * enemySpeed);
     adjustBossProperties(distance);
 
     if (!bossActive) {
@@ -508,7 +508,6 @@ function drawPlayContent() {
             context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
         }
 
-        // Détecter les collisions avec les projectiles
         projectiles.forEach((proj, pIndex) => {
             if (
                 proj.x < enemy.x + enemy.width &&
@@ -518,20 +517,20 @@ function drawPlayContent() {
             ) {
                 projectiles.splice(pIndex, 1);
                 enemy.health -= projectileForce;
+                displayDamage(projectileForce*(1000).toString(), enemy.x, enemy.y); 
+
                 if (enemy.health <= 0) {
-                    projectiles.splice(pIndex, 1);
                     explosion = { 
                         x: enemy.x, 
                         y: enemy.y, 
                         width: enemy.width,  
                         height: enemy.height, 
                         startTime: Date.now() 
-                    }; 
-                    enemies.splice(index, 1); 
-        
+                    };
+                    enemies.splice(index, 1);
+
                     const multiplier = getScoreMultiplier(previousDistance);
-                    score += 1 * multiplier; 
-        
+                    score += 1 * multiplier;
                     paperBalls += 1 * multiplicateurPaperBalls;
                     totalMonstersKilled++;
                     totalPaperBalls++;
@@ -553,7 +552,6 @@ function drawPlayContent() {
             }
         }
 
-        // Supprimer les ennemis qui sortent de l'écran
         if (enemy.y > canvas.height) {
             enemies.splice(index, 1);
             player.lives -= 1;
@@ -577,10 +575,8 @@ function drawPlayContent() {
             }
         }
 
-        // Dessiner le boss
         context.drawImage(currentBoss.image, currentBoss.x, currentBoss.y, currentBoss.width, currentBoss.height);
 
-        // Gérer les tirs du boss
         currentBoss.shootTimer++;
         if (currentBoss.shootTimer >= currentBoss.shootInterval) {
             currentBoss.shootTimer = 0;
@@ -594,14 +590,10 @@ function drawPlayContent() {
             bossProjectiles.push(projectile);
         }
 
-        // Gérer les projectiles du boss
         handleBossProjectiles();
-
-        // Gérer les collisions avec le boss
         handleBossCollision();
     }
 
-    // Dessiner l'explosion avec effet de fondu
     explosionImageShow();
 
     context.fillStyle = '#000000';
@@ -618,7 +610,36 @@ function drawPlayContent() {
     if (distance > previousDistance) {
         previousDistance = distance;
         document.getElementById('distance-max').textContent = previousDistance;
-        saveStats(); 
+        saveStats();
+    }
+    
+    drawDamageText(); 
+}
+
+function displayDamage(text, x, y) {
+    damageText.text = text;
+    damageText.x = x;
+    damageText.y = y;
+    damageText.startTime = Date.now();
+    damageText.isActive = true;
+}
+
+function drawDamageText() {
+    if (!damageText.isActive) return;
+
+    const fadeDuration = 1000; 
+    const currentTime = Date.now();
+    const elapsed = currentTime - damageText.startTime;
+
+    if (elapsed < fadeDuration) {
+        const fade = 1 - elapsed / fadeDuration;
+        context.globalAlpha = fade;
+        context.fillStyle = 'red';
+        context.font = 'bold 20px Arial';
+        context.fillText(damageText.text, damageText.x, damageText.y - (elapsed / fadeDuration) * 50); 
+        context.globalAlpha = 1.0;
+    } else {
+        damageText.isActive = false; 
     }
 }
 

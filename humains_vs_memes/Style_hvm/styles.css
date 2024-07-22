@@ -39,11 +39,15 @@ body, html {
 
 #menuIcon{
     background-color: #C6FE20;
+    width: 100px;
+    height: 100px;
+    border: solid 3px black;
 }
 
 .choix-character{
     width: 90%;
     padding: 5%;
+    overflow: hidden;
 }
 
 .allBTN{
