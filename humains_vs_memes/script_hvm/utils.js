@@ -13,6 +13,8 @@ const speedIncrementInterval = 1000;
 const speedIncrement = 0.1;
 const spawnIncrementInterval = 1000;
 const spawnIncrement = 0.001;
+const ColorBackBTN = "#C2C2C2";
+const ColorTXT = "#000000";
 
 let currentMode = 'menu';
 let backButton = { x: 10, y: 25, size: 20 };
@@ -137,51 +139,52 @@ canvas.addEventListener('click', (event) => {
     }
 });
 
-// Fonction pour afficher "Game Over" et retourner au menu
+let gameOver = false;
+
 function showGameOver() {
+    gameOver = true;
     context.fillStyle = '#FF0000';
     context.font = 'bold 50px Arial';
     context.fillText('Game Over', canvas.width / 2 - 150, canvas.height / 2);
-    setTimeout(() => {
-        showMenu();
-        resetGame();
-    }, 1000);
+
+    document.addEventListener('keydown', handleGameOverKey);
 }
 
-// Fonction pour mettre le jeu en pause
+function handleGameOverKey(event) {
+    if (event.code === 'Space') {
+        document.removeEventListener('keydown', handleGameOverKey);
+        showMenu();
+        resetGame();
+    }
+}
+
 function pauseGame() {
     stopGameLoop();
 }
 
-// Fonction pour reprendre le jeu
 function resumeGame() {
     gameLoop();
 }
 
-// Fonction pour afficher le modal de confirmation
 function showModal() {
     confirmModal.style.display = 'block';
 }
 
-// Fonction pour cacher le modal de confirmation
 function hideModal() {
     confirmModal.style.display = 'none';
 }
 
-// Gérer le bouton OUI du modal
 confirmYes.addEventListener('click', () => {
     hideModal();
     showMenu();
     resetGame();
 });
 
-// Gérer le bouton NON du modal
 confirmNo.addEventListener('click', () => {
     hideModal();
     resumeGame();
 });
 
-// Fonction pour arrêter la boucle de jeu
 function stopGameLoop() {
     if (gameLoopId) {
         cancelAnimationFrame(gameLoopId);
@@ -189,14 +192,13 @@ function stopGameLoop() {
     }
 }
 
-// Fonction pour démarrer la boucle de jeu
 function gameLoop() {
-    context.clearRect(0, 0, canvas.width, canvas.height);  // Efface le canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);  
 
     if (currentMode === 'play') {
         if (!gameStarted) {
             drawCountdown();
-        } else {
+        } else if (!gameOver) {  
             drawPlayContent();
         }
     } else if (currentMode === 'character') {
@@ -206,20 +208,20 @@ function gameLoop() {
     }
 
     if (currentMode !== 'menu') {
-        drawBackButton();  // Dessine le bouton retour sous forme de croix
+        drawBackButton();  
     }
 
-    gameLoopId = requestAnimationFrame(gameLoop);  // Appelle gameLoop de manière récursive pour créer une boucle
+    if (!gameOver) {  
+        gameLoopId = requestAnimationFrame(gameLoop);  
+    }
 }
 
-// Fonction pour dessiner le compte à rebours
 function drawCountdown() {
     context.fillStyle = '#000000';
     context.font = 'bold 50px Arial';
     context.fillText(countdown, canvas.width / 2 - 15, canvas.height / 2);
 }
 
-// Démarrer le jeu après le compte à rebours
 function startGameAfterCountdown() {
     const countdownInterval = setInterval(() => {
         if (countdown > 1) {
@@ -233,9 +235,10 @@ function startGameAfterCountdown() {
 
 // Fonction pour réinitialiser le jeu
 function resetGame() {
+    gameOver = false;
     gameStarted = false;
     countdown = 3;
-    player.lives = 5 + achatDeLaVie;
+    player.lives = 5;
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - player.height - 10;
     projectiles = [];
@@ -303,3 +306,29 @@ inventoryButton.addEventListener('click', () => {
     currentMode = 'inventory';
     gameLoop();
 });
+
+canvas.addEventListener('mousemove', (event) => {
+    if (!gameOver) {
+        movePlayer(event);
+    }
+});
+canvas.addEventListener('click', (event) => {
+    if (!gameOver) {
+        shootProjectile(event);
+    }
+});
+
+// Ajoutez des écouteurs d'événements pour les touches tactiles
+canvas.addEventListener('touchmove', (event) => {
+    if (!gameOver) {
+        event.preventDefault();
+        movePlayerTouch(event);
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchstart', (event) => {
+    if (!gameOver) {
+        event.preventDefault();
+        shootProjectileTouch(event);
+    }
+}, { passive: false });

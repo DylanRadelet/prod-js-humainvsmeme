@@ -143,11 +143,6 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
     }
 }
 
-const ColorBackBTN = "#C2C2C2";
-const ColorTXT = "#000000";
-
-// Fonction pour dessiner les boutons de l'inventaire
-
 function drawShowBoulettes(){
     context.font = 'bold 16px Arial';
     context.fillText(`Vous avez ${totalPaperBalls} boulettes de papier`, 35, 600);
@@ -168,19 +163,19 @@ function drawInventoryButtons() {
     roundRect(context, startX, startY, buttonWidth, buttonHeight, borderRadius, true, false);
     context.fillStyle = ColorTXT;
     context.font = '16px Arial';
-    context.fillText(`Vie: ${lifeCost} bls`, startX + 55, startY + 30);
+    context.fillText(`Vie: ${lifeCost} bls`, startX + 10, startY + 30);
 
     // (Acheter de la force)
     context.fillStyle = ColorBackBTN;
     roundRect(context, startX, startY + buttonHeight + buttonPadding, buttonWidth, buttonHeight, borderRadius, true, false);
     context.fillStyle = ColorTXT;
-    context.fillText(`Force: ${strengthCost} bls`, startX + 50, startY + buttonHeight + buttonPadding + 30);
+    context.fillText(`Force: ${strengthCost} bls`, startX + 10, startY + buttonHeight + buttonPadding + 30);
 
     // (Acheter un multiplicateur boulette)
     context.fillStyle = ColorBackBTN;
     roundRect(context, startX, startY + (buttonHeight + buttonPadding) * 2, buttonWidth, buttonHeight, borderRadius, true, false);
     context.fillStyle = ColorTXT;
-    context.fillText(`Multiplicateur: ${multiplierCost} bls`, startX + 20, startY + (buttonHeight + buttonPadding) * 2 + 30);
+    context.fillText(`Multiplicateur: ${multiplierCost} bls`, startX + 10, startY + (buttonHeight + buttonPadding) * 2 + 30);
 }
 
 // Gestion des clics sur les boutons de l'inventaire
@@ -364,11 +359,9 @@ let bossShootInterval = 100;
 let bossShootTimer = 0;
 
 function adjustBossProperties(distance) {
-    console.log(`Checking if boss should spawn. Current distance: ${distance}, Boss active: ${bossActive}`);
     if (distance % bossSpawnDistance === 0 && distance !== 0 && !bossActive) {
         const bossHealth = 20 + (distance / bossSpawnDistance - 1) * 10;
         const bossShootInterval = Math.max(100 - Math.floor(distance / bossSpawnDistance) * 10, 20);
-        console.log(`Spawning boss with health: ${bossHealth}, shoot interval: ${bossShootInterval}`);
         spawnBoss(bossHealth, bossShootInterval);
     }
 }
@@ -390,7 +383,6 @@ function spawnBoss(bossHealth, bossShootInterval) {
             shootTimer: 0
         };
         bossActive = true;
-        console.log(`Boss spawned with image index: ${bossImageIndex}, health: ${bossHealth}, shoot interval: ${bossShootInterval}`);
     };
 }
 
@@ -501,19 +493,16 @@ function drawPlayContent() {
         }
     });
 
-    // Vérifier et ajuster les propriétés du boss
-    const distance = Math.floor(gameDuration * enemySpeed);
-    console.log(`Current distance: ${distance}`);
+    const distance = Math.floor(gameDuration * enemySpeed / 7);
+    //console.log(`Current distance: ${distance}`);
     adjustBossProperties(distance);
 
-    // Ajouter des ennemis en fonction de la probabilité ajustée si le boss n'est pas actif
     if (!bossActive) {
         adjustSpawnProbability();
         adjustEnemyHealth();
         spawnEnemy();
     }
 
-    // Dessiner les ennemis
     enemies.forEach((enemy, index) => {
         enemy.y += enemySpeed;
         if (enemy.image) {
@@ -534,12 +523,12 @@ function drawPlayContent() {
                 projectiles.splice(pIndex, 1);
                 enemy.health -= projectileForce;
                 if (enemy.health <= 0) {
-                    explosion = { x: enemy.x, y: enemy.y, startTime: Date.now() }; // Ajouter l'explosion
-                    enemies.splice(index, 1); // Supprimer l'ennemi immédiatement
+                    projectiles.splice(pIndex, 1);
+                    explosion = { x: enemy.x, y: enemy.y, startTime: Date.now() }; 
+                    enemies.splice(index, 1); 
 
-                    // Calculer le multiplicateur de score
                     const multiplier = getScoreMultiplier(previousDistance);
-                    score += 1 * multiplier; // Appliquer le multiplicateur au score
+                    score += 1 * multiplier; 
 
                     paperBalls += 1*multiplicateurPaperBalls;
                     totalMonstersKilled++;
@@ -566,6 +555,10 @@ function drawPlayContent() {
         // Supprimer les ennemis qui sortent de l'écran
         if (enemy.y > canvas.height) {
             enemies.splice(index, 1);
+            player.lives -= 1;
+            if (player.lives <= 0) {
+                showGameOver();
+            }
         }
     });
 
@@ -646,34 +639,59 @@ function getScoreMultiplier(distance) {
 }
 
 function adjustSpawnProbability() {
-    const distance = gameDuration * enemySpeed;
+    const distance = gameDuration * enemySpeed / 7;
 
     if (distance < 1000) {
         enemiesPerCycle = 1;
         spawnInterval = 100;
     } else if (distance < 2000) {
-        enemiesPerCycle = 2;
-        spawnInterval = 100;
+        enemiesPerCycle = 1;
+        spawnInterval = 90;
+        enemiesPerCycle = 1;
     } else if (distance < 3000) {
-        enemiesPerCycle = 3;
-        spawnInterval = 100;
+        enemiesPerCycle = 1;
+        spawnInterval = 70;
+        enemiesPerCycle = 1;
+        spawnInterval = 70;
+        enemiesPerCycle = 1;
     } else if (distance < 4000) {
-        enemiesPerCycle = 4;
-        spawnInterval = 100;
+        enemiesPerCycle = 1;
+        spawnInterval = 50;
+        enemiesPerCycle = 1;
+        spawnInterval = 50;
+        enemiesPerCycle = 1;
+        spawnInterval = 50;
+        enemiesPerCycle = 1;
     } else if (distance < 5000) {
-        enemiesPerCycle = 5;
-        spawnInterval = 100;
+        enemiesPerCycle = 1;
+        spawnInterval = 40;
+        enemiesPerCycle = 1;
+        spawnInterval = 40;
+        enemiesPerCycle = 1;
+        spawnInterval = 40;
+        enemiesPerCycle = 1;
+        spawnInterval = 40;
+        enemiesPerCycle = 1;
     } else if (distance < 6000) {
-        enemiesPerCycle = 6;
-        spawnInterval = 100;
+        enemiesPerCycle = 1;
+        spawnInterval = 30;
+        enemiesPerCycle = 1;
+        spawnInterval = 30;
+        enemiesPerCycle = 1;
+        spawnInterval = 30;
+        enemiesPerCycle = 1;
+        spawnInterval = 30;
+        enemiesPerCycle = 1;
+        spawnInterval = 30;
+        enemiesPerCycle = 1;
     } else {
         enemiesPerCycle = 7;
-        spawnInterval = 100;
+        spawnInterval = 10;
     }
 }
 
 function adjustEnemyHealth() {
-    const distance = gameDuration * enemySpeed;
+    const distance = gameDuration * enemySpeed / 7;
 
     if (distance < 1000) {
         enemyHealth = 1;
@@ -709,7 +727,7 @@ function spawnEnemy() {
             const imageIndex = (i + gameDuration / spawnInterval) % enemyImages.length;
             const image = enemyImages[imageIndex];
             enemies.push({ x, y, width: enemyWidth, height: enemyHeight, health: enemyHealth, image });
-            console.log("Enemy spawned at:", x, y, "with image index:", imageIndex, "and health:", enemyHealth);
+            console.log(enemySpeed);
         }
     }
 }

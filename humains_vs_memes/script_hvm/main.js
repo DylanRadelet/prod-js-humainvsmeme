@@ -55,15 +55,16 @@ function startGameAfterCountdown() {
 }
 
 function resetGame() {
+    gameOver = false;
     gameStarted = false;
     countdown = 3;
-    player.lives = 5 + achatDeLaVie;
+    player.lives = 5;
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - player.height - 10;
     projectiles = [];
     enemies = [];
     score = 0;
-    paperBalls = 0; 
+    paperBalls = 0;
     gameDuration = 0;
     enemySpeed = 0.5;
     spawnProbability = 0.01;
