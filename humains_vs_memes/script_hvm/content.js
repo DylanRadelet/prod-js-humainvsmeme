@@ -215,8 +215,9 @@ function drawPlayContent() {
         }
     });
 
-    // Ajuster la probabilité d'apparition des ennemis
+    // Ajuster la probabilité d'apparition des ennemis et leur vie
     adjustSpawnProbability();
+    adjustEnemyHealth();
 
     // Ajouter des ennemis en fonction de la probabilité ajustée
     spawnEnemy();
@@ -304,7 +305,7 @@ function drawPlayContent() {
     }
 
     // Mettre à jour la distance
-    const distance = Math.floor(gameDuration * enemySpeed);
+    const distance = Math.floor(gameDuration * enemySpeed); // /5
     if (distance > previousDistance) {
         previousDistance = distance;
         document.getElementById('distance-max').textContent = previousDistance;
@@ -343,6 +344,25 @@ function adjustSpawnProbability() {
     }
 }
 
+function adjustEnemyHealth() {
+    const distance = gameDuration * enemySpeed;
+
+    if (distance < 1000) {
+        enemyHealth = 1;
+    } else if (distance < 2000) {
+        enemyHealth = 2;
+    } else if (distance < 3000) {
+        enemyHealth = 3;
+    } else if (distance < 4000) {
+        enemyHealth = 4;
+    } else if (distance < 5000) {
+        enemyHealth = 5;
+    } else if (distance < 6000) {
+        enemyHealth = 6;
+    } else {
+        enemyHealth = 7;
+    }
+}
 
 function getRandomSpawnProbability(min, max) {
     const framesPerSecond = 60;  
@@ -360,8 +380,8 @@ function spawnEnemy() {
             const y = -enemyHeight;
             const imageIndex = (i + gameDuration / spawnInterval) % enemyImages.length; // Utiliser différents indices d'image
             const image = enemyImages[imageIndex];
-            enemies.push({ x, y, width: enemyWidth, height: enemyHeight, health: 1, image });
-            console.log("Enemy spawned at:", x, y, "with image index:", imageIndex);
+            enemies.push({ x, y, width: enemyWidth, height: enemyHeight, health: enemyHealth, image });
+            console.log("Enemy spawned at:", x, y, "with image index:", imageIndex, "and health:", enemyHealth);
         }
     }
 }
