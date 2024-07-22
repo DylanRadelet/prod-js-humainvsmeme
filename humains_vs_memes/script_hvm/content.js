@@ -90,24 +90,58 @@ function loadSelectedCharacter() {
     }
 }
 
-// Sauvegarder le personnage sélectionné dans le stockage local
 function saveSelectedCharacter(index) {
     localStorage.setItem('selectedCharacterIndex', index);
 }
 
-// Fonction pour dessiner le contenu de l'inventaire
 function drawInventoryContent() {
     console.log("drawInventoryContent called");
-    context.clearRect(0, 0, canvas.width, canvas.height);  // Efface le canvas
+    context.clearRect(0, 0, canvas.width, canvas.height); 
     context.fillStyle = '#000000';
     context.font = '30px Arial';
     context.fillText('Shop', 150, 100);
 
-    // Dessiner les boutons de l'inventaire
     drawInventoryButtons();
 
-    drawBackButton();  // Dessine le bouton retour sous forme de croix
+    drawBackButton();
 }
+
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+    if (typeof stroke === 'undefined') {
+        stroke = true;
+    }
+    if (typeof radius === 'undefined') {
+        radius = 5;
+    }
+    if (typeof radius === 'number') {
+        radius = {tl: radius, tr: radius, br: radius, bl: radius};
+    } else {
+        var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+        for (var side in defaultRadius) {
+            radius[side] = radius[side] || defaultRadius[side];
+        }
+    }
+    ctx.beginPath();
+    ctx.moveTo(x + radius.tl, y);
+    ctx.lineTo(x + width - radius.tr, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    ctx.lineTo(x + width, y + height - radius.br);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    ctx.lineTo(x + radius.bl, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    ctx.lineTo(x, y + radius.tl);
+    ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+    ctx.closePath();
+    if (fill) {
+        ctx.fill();
+    }
+    if (stroke) {
+        ctx.stroke();
+    }
+}
+
+const ColorBackBTN = "#C2C2C2";
+const ColorTXT = "#000000";
 
 // Fonction pour dessiner les boutons de l'inventaire
 function drawInventoryButtons() {
@@ -117,24 +151,27 @@ function drawInventoryButtons() {
     const startX = (canvas.width - buttonWidth) / 2;
     const startY = 150;
 
-    // Dessiner le premier bouton (Acheter de la vie)
-    context.fillStyle = '#FF0000';
-    context.fillRect(startX, startY, buttonWidth, buttonHeight);
-    context.fillStyle = '#FFFFFF';
+    // Définir le rayon des coins arrondis
+    const borderRadius = 10;
+
+    // (Acheter de la vie)
+    context.fillStyle = ColorBackBTN;
+    roundRect(context, startX, startY, buttonWidth, buttonHeight, borderRadius, true, false);
+    context.fillStyle = ColorTXT;
     context.font = '16px Arial';
-    context.fillText(`Vie: ${lifeCost} boulettes`, startX + 10, startY + 30);
+    context.fillText(`Vie: ${lifeCost} boulettes`, startX + 35, startY + 30);
 
-    // Dessiner le deuxième bouton (Acheter de la force)
-    context.fillStyle = '#00FF00';
-    context.fillRect(startX, startY + buttonHeight + buttonPadding, buttonWidth, buttonHeight);
-    context.fillStyle = '#FFFFFF';
-    context.fillText(`Force: ${strengthCost} boulettes`, startX + 10, startY + buttonHeight + buttonPadding + 30);
+    // (Acheter de la force)
+    context.fillStyle = ColorBackBTN;
+    roundRect(context, startX, startY + buttonHeight + buttonPadding, buttonWidth, buttonHeight, borderRadius, true, false);
+    context.fillStyle = ColorTXT;
+    context.fillText(`Force: ${strengthCost} boulettes`, startX + 30, startY + buttonHeight + buttonPadding + 30);
 
-    // Dessiner le troisième bouton (Acheter un multiplicateur)
-    context.fillStyle = '#0000FF';
-    context.fillRect(startX, startY + (buttonHeight + buttonPadding) * 2, buttonWidth, buttonHeight);
-    context.fillStyle = '#FFFFFF';
-    context.fillText(`Multiplicateur: ${multiplierCost} boulettes`, startX + 10, startY + (buttonHeight + buttonPadding) * 2 + 30);
+    // (Acheter un multiplicateur boulette)
+    context.fillStyle = ColorBackBTN;
+    roundRect(context, startX, startY + (buttonHeight + buttonPadding) * 2, buttonWidth, buttonHeight, borderRadius, true, false);
+    context.fillStyle = ColorTXT;
+    context.fillText(`Multiplicateur: ${multiplierCost} boulettes`, startX , startY + (buttonHeight + buttonPadding) * 2 + 30);
 }
 
 // Gestion des clics sur les boutons de l'inventaire
@@ -668,7 +705,6 @@ function spawnEnemy() {
     }
 }
 
-// Fonction pour mettre à jour les statistiques dans le menu
 function updateStats() {
     document.getElementById('distance-max').textContent = previousDistance;
     document.getElementById('meme-kill').textContent = totalMonstersKilled; 
@@ -676,20 +712,18 @@ function updateStats() {
     saveStats();
 }
 
-// Fonction pour sauvegarder les statistiques dans le stockage local
 function saveStats() {
     localStorage.setItem('totalMonstersKilled', totalMonstersKilled);
     localStorage.setItem('totalPaperBalls', totalPaperBalls);
     localStorage.setItem('distanceMax', previousDistance);
-    localStorage.setItem('score', score); // Ajouter cette ligne pour sauvegarder le score
+    localStorage.setItem('score', score);
 }
 
-// Fonction pour charger les statistiques depuis le stockage local
 function loadStats() {
     totalMonstersKilled = parseInt(localStorage.getItem('totalMonstersKilled'), 10) || 0;
     totalPaperBalls = parseInt(localStorage.getItem('totalPaperBalls'), 10) || 0;
     previousDistance = parseInt(localStorage.getItem('distanceMax'), 10) || 0;
-    score = parseFloat(localStorage.getItem('score')) || 0; // Ajouter cette ligne pour charger le score
+    score = parseFloat(localStorage.getItem('score')) || 0; 
     updateStats();
 }
 
@@ -711,7 +745,6 @@ function loadCosts() {
     achatDeLaVie = parseInt(localStorage.getItem('achatDeLaVie'), 10) || 1;
 }
 
-// Charger les statistiques au chargement de la page
 window.addEventListener('load', loadStats);
 window.addEventListener('load', () => {
     loadStats();

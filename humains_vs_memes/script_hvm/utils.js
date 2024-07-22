@@ -9,26 +9,26 @@ const inventoryButton = document.getElementById('inventoryButton');
 const confirmModal = document.getElementById('confirmModal');
 const confirmYes = document.getElementById('confirmYes');
 const confirmNo = document.getElementById('confirmNo');
+const speedIncrementInterval = 1000;
+const speedIncrement = 0.1;
+const spawnIncrementInterval = 1000;
+const spawnIncrement = 0.001;
 
 let currentMode = 'menu';
 let backButton = { x: 10, y: 25, size: 20 };
 let gameLoopId;
 
 // Variables de jeu
-let player = { x: canvas.width / 2 - 50, y: canvas.height - 200, width: 100, height: 100, lives: 5+achatDeLaVie };
 let projectiles = [];
 let enemies = [];
 let enemySpeed = 0.5;
 let spawnProbability = 0.01;
-const speedIncrementInterval = 1000;
-const speedIncrement = 0.1;
-const spawnIncrementInterval = 1000;
-const spawnIncrement = 0.001;
 let gameDuration = 0;
 let score = 0;
 let paperBalls = 0;
 let multiplicateurPaperBalls = 1;
 let achatDeLaVie = 0;
+let player = { x: canvas.width / 2 - 50, y: canvas.height - 200, width: 100, height: 100, lives: 5+achatDeLaVie };
 
 let totalPaperBalls = 0;
 let totalMonstersKilled = 0;
