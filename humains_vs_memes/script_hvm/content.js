@@ -30,8 +30,9 @@ const bossImages = [
     './assets_hvm/images/meme/boss/boss-meme-02.webp',
     './assets_hvm/images/meme/boss/boss-meme-03.webp'
 ];
+
 const bosses = [];
-const bossProjectiles = [];
+let bossProjectiles = [];
 let currentBoss = null;
 let bossActive = false;
 let bossSpawnDistance = 1000; 
@@ -184,6 +185,118 @@ function updateMenuIcon() {
 // Charger le personnage sélectionné au chargement de la page
 window.addEventListener('load', loadSelectedCharacter);
 
+let boss = null;
+let bossHealth = 20;
+let bossSpawned = false;
+let bossShootInterval = 100;
+let bossShootTimer = 0;
+
+function adjustBossProperties(distance) {
+    console.log(`Checking if boss should spawn. Current distance: ${distance}, Boss active: ${bossActive}`);
+    if (distance % bossSpawnDistance === 0 && distance !== 0 && !bossActive) {
+        const bossHealth = 20 + (distance / bossSpawnDistance - 1) * 10;
+        const bossShootInterval = Math.max(100 - Math.floor(distance / bossSpawnDistance) * 10, 20);
+        console.log(`Spawning boss with health: ${bossHealth}, shoot interval: ${bossShootInterval}`);
+        spawnBoss(bossHealth, bossShootInterval);
+    }
+}
+
+function spawnBoss(bossHealth, bossShootInterval) {
+    const bossImageIndex = Math.floor((previousDistance / bossSpawnDistance) % bossImages.length);
+    const bossImage = new Image();
+    bossImage.src = bossImages[bossImageIndex];
+    bossImage.onload = () => {
+        currentBoss = {
+            x: canvas.width / 2 - 50,
+            y: -100,
+            width: 100,
+            height: 100,
+            health: bossHealth,
+            speed: 2,
+            image: bossImage,
+            shootInterval: bossShootInterval,
+            shootTimer: 0
+        };
+        bossActive = true;
+        console.log(`Boss spawned with image index: ${bossImageIndex}, health: ${bossHealth}, shoot interval: ${bossShootInterval}`);
+    };
+}
+
+// Gérer les tirs du boss
+function handleBossProjectiles() {
+    bossProjectiles.forEach((proj, index) => {
+        proj.y += proj.speed;
+        if (projectileImage.complete) {
+            context.drawImage(projectileImage, proj.x - 12, proj.y, proj.width, proj.height);
+        } else {
+            context.fillStyle = '#0000FF';
+            context.fillRect(proj.x, proj.y, proj.width, proj.height);
+        }
+        if (proj.y > canvas.height) {
+            bossProjectiles.splice(index, 1);
+        }
+
+        // Détecter les collisions avec le joueur
+        if (
+            proj.x < player.x + player.width &&
+            proj.x + proj.width > player.x &&
+            proj.y < player.y + player.height &&
+            proj.height + proj.y > player.y
+        ) {
+            bossProjectiles.splice(index, 1);
+            player.lives--;
+            if (player.lives <= 0) {
+                showGameOver();
+            }
+        }
+    });
+}
+
+function handleBossCollision() {
+    if (!currentBoss) {
+        console.log("handleBossCollision: currentBoss is null, skipping collision detection");
+        return; // Ajout de la vérification pour s'assurer que currentBoss n'est pas null
+    }
+
+    // Détecter les collisions avec les projectiles du joueur
+    projectiles.forEach((proj, pIndex) => {
+        if (!currentBoss) {
+            console.log("handleBossCollision: currentBoss became null during iteration, skipping collision detection");
+            return;
+        }
+        if (
+            proj.x < currentBoss.x + currentBoss.width &&
+            proj.x + proj.width > currentBoss.x &&
+            proj.y < currentBoss.y + currentBoss.height &&
+            proj.height + proj.y > currentBoss.y
+        ) {
+            projectiles.splice(pIndex, 1);
+            currentBoss.health--;
+            if (currentBoss.health <= 0) {
+                explosion = { 
+                    x: currentBoss.x, 
+                    y: currentBoss.y, 
+                    width: currentBoss.width,  // Ajouter la largeur du boss
+                    height: currentBoss.height, // Ajouter la hauteur du boss
+                    startTime: Date.now() 
+                }; // Ajouter l'explosion
+                currentBoss = null; // Supprimer le boss immédiatement
+                bossActive = false;
+                bossProjectiles.length = 0; // Vider tous les projectiles du boss
+
+                // Calculer le multiplicateur de score
+                const multiplier = getScoreMultiplier(previousDistance);
+                score += 10 * multiplier; // Appliquer le multiplicateur au score pour le boss
+
+                paperBalls++;
+                totalMonstersKilled++;
+                totalPaperBalls++;
+                updateStats();
+            }
+        }
+    });
+}
+
 // Fonction pour dessiner le contenu du mode 'play'
 const distanceLogInterval = 100;
 let lastLoggedDistance = 0;
@@ -215,12 +328,17 @@ function drawPlayContent() {
         }
     });
 
-    // Ajuster la probabilité d'apparition des ennemis et leur vie
-    adjustSpawnProbability();
-    adjustEnemyHealth();
+    // Vérifier et ajuster les propriétés du boss
+    const distance = Math.floor(gameDuration * enemySpeed);
+    console.log(`Current distance: ${distance}`);
+    adjustBossProperties(distance);
 
-    // Ajouter des ennemis en fonction de la probabilité ajustée
-    spawnEnemy();
+    // Ajouter des ennemis en fonction de la probabilité ajustée si le boss n'est pas actif
+    if (!bossActive) {
+        adjustSpawnProbability();
+        adjustEnemyHealth();
+        spawnEnemy();
+    }
 
     // Dessiner les ennemis
     enemies.forEach((enemy, index) => {
@@ -278,6 +396,46 @@ function drawPlayContent() {
         }
     });
 
+    // Gérer le boss
+    if (bossActive && currentBoss) {
+        // Déplacer le boss vers le joueur, mais ne pas descendre plus bas que 150 px
+        if (currentBoss.y < 150) {
+            currentBoss.y += currentBoss.speed;
+        } else {
+            const distanceToPlayerX = Math.abs(player.x - currentBoss.x);
+            if (distanceToPlayerX > 5) {  // Ajouter un seuil de 5 pixels pour éviter le tremblement
+                if (player.x < currentBoss.x) {
+                    currentBoss.x -= currentBoss.speed;
+                } else if (player.x > currentBoss.x) {
+                    currentBoss.x += currentBoss.speed;
+                }
+            }
+        }
+
+        // Dessiner le boss
+        context.drawImage(currentBoss.image, currentBoss.x, currentBoss.y, currentBoss.width, currentBoss.height);
+
+        // Gérer les tirs du boss
+        currentBoss.shootTimer++;
+        if (currentBoss.shootTimer >= currentBoss.shootInterval) {
+            currentBoss.shootTimer = 0;
+            const projectile = {
+                x: currentBoss.x + currentBoss.width / 2 - 12,
+                y: currentBoss.y + currentBoss.height,
+                width: 24,
+                height: 24,
+                speed: 5
+            };
+            bossProjectiles.push(projectile);
+        }
+
+        // Gérer les projectiles du boss
+        handleBossProjectiles();
+
+        // Gérer les collisions avec le boss
+        handleBossCollision();
+    }
+
     // Dessiner l'explosion avec effet de fondu
     if (explosion) {
         const currentTime = Date.now();
@@ -285,7 +443,7 @@ function drawPlayContent() {
         const fadeDuration = 700; // Durée totale de l'explosion en ms
         if (elapsed < fadeDuration) {
             context.globalAlpha = 1 - elapsed / fadeDuration; // Réduire l'opacité au fil du temps
-            context.drawImage(explosionImage, explosion.x, explosion.y, 50, 50); // Dessiner l'explosion
+            context.drawImage(explosionImage, explosion.x, explosion.y, explosion.width, explosion.height); // Utiliser la largeur et la hauteur de l'explosion
             context.globalAlpha = 1.0; // Réinitialiser l'opacité
         } else {
             explosion = null; // Réinitialiser l'explosion après la durée de fondu
@@ -305,7 +463,6 @@ function drawPlayContent() {
     }
 
     // Mettre à jour la distance
-    const distance = Math.floor(gameDuration * enemySpeed); // /5
     if (distance > previousDistance) {
         previousDistance = distance;
         document.getElementById('distance-max').textContent = previousDistance;
