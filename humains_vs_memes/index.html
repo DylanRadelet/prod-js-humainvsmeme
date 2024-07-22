@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Jeu</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="./style_hvm/styles.css">
+    <script src="./script_hvm/utils.js" defer></script>
+    <script src="./script_hvm/content.js" defer></script>
+    <script src="./script_hvm/main.js" defer></script>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="menu">
+            <div class="choix-character">
+                <img id="menuIcon" src="./assets_hvm/images/humain/humain-01.webp" alt="Character Icon" style="width: 50px; height: 50px; border: 2px solid #000;">
+            </div>
+            
+            <div class="allBTN">
+                <button id="playButton">Jouer</button>
+                <button id="characterButton">Personnage</button>
+                <button id="inventoryButton">Inventaire</button>
+            </div>
+
+            <div class="score-player">
+                <p class="score">Distance maximum : <span id="distance-max">0</span></p>
+                <p class="score">Meme tués : <span id="meme-kill">0</span></p>
+                <p class="score">boulette de papier : <span id="boulette-papier">0</span></p>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" style="display: none;"></canvas>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p>Êtes-vous sûr de quitter ?</p>
+            <button id="confirmYes">OUI</button>
+            <button id="confirmNo">NON</button>
+        </div>
+    </div>
+</body>
+</html>

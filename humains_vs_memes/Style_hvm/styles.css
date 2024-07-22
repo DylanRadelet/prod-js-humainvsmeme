@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+*{
+    font-family: 'Poppins', sans-serif;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #929292;
+}
+
+#gameContainer {
+    width: 375px;
+    height: 650px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-image: url(../assets_hvm/images/background.webp);
+    background-size: cover;
+    border-radius: 25px;
+}
+
+#menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.choix-character{
+    width: 90%;
+    padding: 5%;
+}
+
+.allBTN{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 50%;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #c2c2c2;
+    color: #000000;
+}
+
+.score-player{
+    width: 90%;
+    padding: 5%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+}
+
+#gameCanvas {
+    overflow: hidden;
+    width: 375px;
+    height: 650px;
+    background-image: url(../assets_hvm/images/background.webp);
+    background-size: cover;
+    border-radius: 25px;
+    display: none;
+}
+
+.backButton {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/********************************
+=> MODAL
+********************************/
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+    background-image: url(../assets_hvm/images/background.webp);
+    overflow: hidden;
+    background-size: cover;
+    border-radius: 25px;
+    margin: 20% auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 300px; 
+    text-align: center;
+}
+
+.modal-content button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #c2c2c2;
+    color: #000000;
+}
+
