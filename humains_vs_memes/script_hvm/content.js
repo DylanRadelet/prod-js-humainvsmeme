@@ -2,8 +2,10 @@
 
 const images = [];
 const enemyImages = [];
+const projectileImageBoss = new Image();
 const projectileImage = new Image();
 const explosionImage = new Image();
+projectileImageBoss.src = './assets_hvm/images/projectile/chartreuse-verte.png'; 
 projectileImage.src = './assets_hvm/images/projectile/projectile.png'; 
 explosionImage.src = './assets_hvm/images/explosion.png'; 
 const imageSrcs = [
@@ -122,7 +124,7 @@ function drawCharacterContent() {
         imageRects[i] = { x, y, width: squareSize, height: squareSize };
 
         if (i === selectedImageIndex) {
-            context.strokeStyle = '#FFD700';
+            context.strokeStyle = '#C6FE20';
             context.lineWidth = 5;
             context.strokeRect(x, y, squareSize, squareSize);
         }
@@ -226,8 +228,10 @@ function spawnBoss(bossHealth, bossShootInterval) {
 function handleBossProjectiles() {
     bossProjectiles.forEach((proj, index) => {
         proj.y += proj.speed;
-        if (projectileImage.complete) {
-            context.drawImage(projectileImage, proj.x - 12, proj.y, proj.width, proj.height);
+        if (projectileImageBoss.complete) {
+            proj.width = 14;
+            proj.height = 47;
+            context.drawImage(projectileImageBoss, proj.x - 12, proj.y, proj.width, proj.height);
         } else {
             context.fillStyle = '#0000FF';
             context.fillRect(proj.x, proj.y, proj.width, proj.height);
