@@ -8,6 +8,7 @@ const explosionImage = new Image();
 projectileImageBoss.src = './assets_hvm/images/projectile/chartreuse-verte.png'; 
 projectileImage.src = './assets_hvm/images/projectile/projectile.png'; 
 explosionImage.src = './assets_hvm/images/explosion.png'; 
+
 const imageSrcs = [
     './assets_hvm/images/humain/humain-01.webp', 
     './assets_hvm/images/humain/humain-02.webp', 
@@ -49,9 +50,8 @@ let lifeCost = 25;
 let strengthCost = 100;
 let multiplierCost = 50;
 
-let projectileForce = 1;
+let projectileForce = 0;
 
-// Charger les images des personnages
 imageSrcs.forEach((src, index) => {
     const img = new Image();
     img.src = src;
@@ -353,14 +353,14 @@ function updateMenuIcon() {
 window.addEventListener('load', loadSelectedCharacter);
 
 let boss = null;
-let bossHealth = 20;
+let bossHealth = 30;
 let bossSpawned = false;
 let bossShootInterval = 100;
 let bossShootTimer = 0;
 
 function adjustBossProperties(distance) {
     if (distance % bossSpawnDistance === 0 && distance !== 0 && !bossActive) {
-        const bossHealth = 20 + (distance / bossSpawnDistance - 1) * 10;
+        const bossHealth = 30 + (distance / bossSpawnDistance - 1) * 10;
         const bossShootInterval = Math.max(100 - Math.floor(distance / bossSpawnDistance) * 10, 20);
         spawnBoss(bossHealth, bossShootInterval);
     }
@@ -421,10 +421,9 @@ function handleBossProjectiles() {
 function handleBossCollision() {
     if (!currentBoss) {
         console.log("handleBossCollision: currentBoss is null, skipping collision detection");
-        return; // Ajout de la vérification pour s'assurer que currentBoss n'est pas null
+        return; 
     }
 
-    // Détecter les collisions avec les projectiles du joueur
     projectiles.forEach((proj, pIndex) => {
         if (!currentBoss) {
             return;
@@ -462,7 +461,6 @@ function handleBossCollision() {
     });
 }
 
-// Fonction pour dessiner le contenu du mode 'play'
 const distanceLogInterval = 100;
 let lastLoggedDistance = 0;
 
@@ -471,13 +469,11 @@ function drawPlayContent() {
     context.fillStyle = '#000000';
     context.font = '20px Arial';
 
-    // Dessiner le joueur avec l'image sélectionnée
     const playerImage = images[selectedImageIndex];
     if (playerImage) {
         context.drawImage(playerImage, player.x, player.y, player.width, player.height);
     }
 
-    // Dessiner les projectiles
     projectiles.forEach((proj, index) => {
         proj.width = 24;
         proj.height = 24;
@@ -493,7 +489,7 @@ function drawPlayContent() {
         }
     });
 
-    const distance = Math.floor(gameDuration * enemySpeed / 7);
+    const distance = Math.floor(gameDuration * enemySpeed );
     //console.log(`Current distance: ${distance}`);
     adjustBossProperties(distance);
 
@@ -524,13 +520,19 @@ function drawPlayContent() {
                 enemy.health -= projectileForce;
                 if (enemy.health <= 0) {
                     projectiles.splice(pIndex, 1);
-                    explosion = { x: enemy.x, y: enemy.y, startTime: Date.now() }; 
+                    explosion = { 
+                        x: enemy.x, 
+                        y: enemy.y, 
+                        width: enemy.width,  
+                        height: enemy.height, 
+                        startTime: Date.now() 
+                    }; 
                     enemies.splice(index, 1); 
-
+        
                     const multiplier = getScoreMultiplier(previousDistance);
                     score += 1 * multiplier; 
-
-                    paperBalls += 1*multiplicateurPaperBalls;
+        
+                    paperBalls += 1 * multiplicateurPaperBalls;
                     totalMonstersKilled++;
                     totalPaperBalls++;
                     updateStats();
@@ -538,7 +540,6 @@ function drawPlayContent() {
             }
         });
 
-        // Détecter les collisions avec le joueur
         if (
             player.x < enemy.x + enemy.width &&
             player.x + player.width > enemy.x &&
@@ -546,7 +547,7 @@ function drawPlayContent() {
             player.height + player.y > enemy.y
         ) {
             enemies.splice(index, 1);
-            player.lives--;
+            player.lives -= 1;
             if (player.lives <= 0) {
                 showGameOver();
             }
@@ -562,14 +563,12 @@ function drawPlayContent() {
         }
     });
 
-    // Gérer le boss
     if (bossActive && currentBoss) {
-        // Déplacer le boss vers le joueur, mais ne pas descendre plus bas que 150 px
         if (currentBoss.y < 150) {
             currentBoss.y += currentBoss.speed;
         } else {
             const distanceToPlayerX = Math.abs(player.x - currentBoss.x);
-            if (distanceToPlayerX > 5) {  // Ajouter un seuil de 5 pixels pour éviter le tremblement
+            if (distanceToPlayerX > 5) {
                 if (player.x < currentBoss.x) {
                     currentBoss.x -= currentBoss.speed;
                 } else if (player.x > currentBoss.x) {
@@ -603,18 +602,7 @@ function drawPlayContent() {
     }
 
     // Dessiner l'explosion avec effet de fondu
-    if (explosion) {
-        const currentTime = Date.now();
-        const elapsed = currentTime - explosion.startTime;
-        const fadeDuration = 700; // Durée totale de l'explosion en ms
-        if (elapsed < fadeDuration) {
-            context.globalAlpha = 1 - elapsed / fadeDuration; // Réduire l'opacité au fil du temps
-            context.drawImage(explosionImage, explosion.x, explosion.y, explosion.width, explosion.height); // Utiliser la largeur et la hauteur de l'explosion
-            context.globalAlpha = 1.0; // Réinitialiser l'opacité
-        } else {
-            explosion = null; // Réinitialiser l'explosion après la durée de fondu
-        }
-    }
+    explosionImageShow();
 
     context.fillStyle = '#000000';
     context.fillText(`Vies: ${player.lives}`, 10, 80);
@@ -634,12 +622,27 @@ function drawPlayContent() {
     }
 }
 
+function explosionImageShow() {
+    if (explosion) {
+        const currentTime = Date.now();
+        const elapsed = currentTime - explosion.startTime;
+        const fadeDuration = 700; 
+        if (elapsed < fadeDuration) {
+            context.globalAlpha = 1 - elapsed / fadeDuration; 
+            context.drawImage(explosionImage, explosion.x, explosion.y, explosion.width, explosion.height); 
+            context.globalAlpha = 1.0; // Réinitialiser l'opacité
+        } else {
+            explosion = null; // Réinitialiser l'explosion après la durée de fondu
+        }
+    }
+}
+
 function getScoreMultiplier(distance) {
     return 1 + Math.floor(distance / 200) * 0.1;
 }
 
 function adjustSpawnProbability() {
-    const distance = gameDuration * enemySpeed / 7;
+    const distance = gameDuration * enemySpeed;
 
     if (distance < 1000) {
         enemiesPerCycle = 1;
@@ -691,7 +694,7 @@ function adjustSpawnProbability() {
 }
 
 function adjustEnemyHealth() {
-    const distance = gameDuration * enemySpeed / 7;
+    const distance = gameDuration * enemySpeed;
 
     if (distance < 1000) {
         enemyHealth = 1;

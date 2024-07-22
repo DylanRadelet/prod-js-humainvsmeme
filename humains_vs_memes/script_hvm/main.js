@@ -58,6 +58,7 @@ function resetGame() {
     gameOver = false;
     gameStarted = false;
     countdown = 3;
+    bossActive = false;
     player.lives = 5;
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - player.height - 10;

@@ -20,6 +20,9 @@ let currentMode = 'menu';
 let backButton = { x: 10, y: 25, size: 20 };
 let gameLoopId;
 
+const imgGameOver = new Image();
+imgGameOver.src = './assets_hvm/images/Game_Over.png'; 
+
 // Variables de jeu
 let projectiles = [];
 let enemies = [];
@@ -143,11 +146,16 @@ let gameOver = false;
 
 function showGameOver() {
     gameOver = true;
-    context.fillStyle = '#FF0000';
-    context.font = 'bold 50px Arial';
-    context.fillText('Game Over', canvas.width / 2 - 150, canvas.height / 2);
+    context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
+
+    const imgWidth = 340; 
+    const imgHeight = 100; 
+    context.drawImage(imgGameOver, (canvas.width - imgWidth) / 2, (canvas.height - imgHeight) / 2 - 70, imgWidth, imgHeight);
 
     document.addEventListener('keydown', handleGameOverKey);
+
+    canvas.addEventListener('click', handleGameOverClick);
+    canvas.addEventListener('touchstart', handleGameOverClick, { passive: false });
 }
 
 function handleGameOverKey(event) {
@@ -156,6 +164,15 @@ function handleGameOverKey(event) {
         showMenu();
         resetGame();
     }
+}
+
+function handleGameOverClick(event) {
+    // Retirer les écouteurs d'événements après un clic ou un touchstart
+    canvas.removeEventListener('click', handleGameOverClick);
+    canvas.removeEventListener('touchstart', handleGameOverClick, { passive: false });
+
+    showMenu();
+    resetGame();
 }
 
 function pauseGame() {
@@ -237,6 +254,7 @@ function startGameAfterCountdown() {
 function resetGame() {
     gameOver = false;
     gameStarted = false;
+    bossActive = false;
     countdown = 3;
     player.lives = 5;
     player.x = canvas.width / 2 - player.width / 2;
@@ -332,3 +350,5 @@ canvas.addEventListener('touchstart', (event) => {
         shootProjectileTouch(event);
     }
 }, { passive: false });
+
+
