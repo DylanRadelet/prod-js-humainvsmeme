@@ -9,6 +9,7 @@ projectileImageBoss.src = './assets_hvm/images/projectile/chartreuse-verte.png';
 projectileImage.src = './assets_hvm/images/projectile/projectile.png'; 
 explosionImage.src = './assets_hvm/images/explosion.png'; 
 const damageTexts = [];
+let totalDistance = 0;
 
 const imageSrcs = [
     './assets_hvm/images/humain/humain-01.webp', 
@@ -504,7 +505,12 @@ function drawPlayContent() {
         }
     });
 
-    const distance = Math.floor(gameDuration * enemySpeed / 3);
+    // Mettez à jour la distance totale parcourue
+    totalDistance += enemySpeed / 3;
+    const distance = Math.floor(totalDistance);
+    
+    //console.log(`gameDuration: ${gameDuration}, enemySpeed: ${enemySpeed}, distance: ${distance}`);
+    
     adjustBossProperties(distance);
 
     if (!bossActive) {
@@ -523,37 +529,35 @@ function drawPlayContent() {
         }
 
         projectiles.forEach((proj, pIndex) => {
-            enemies.forEach((enemy, index) => {
-                if (
-                    proj.x < enemy.x + enemy.width &&
-                    proj.x + proj.width > enemy.x &&
-                    proj.y < enemy.y + enemy.height &&
-                    proj.height + proj.y > enemy.y
-                ) {
+            if (
+                proj.x < enemy.x + enemy.width &&
+                proj.x + proj.width > enemy.x &&
+                proj.y < enemy.y + enemy.height &&
+                proj.height + proj.y > enemy.y
+            ) {
+                projectiles.splice(pIndex, 1);
+                enemy.health -= projectileForce;
+                displayDamage((projectileForce * 1000).toString(), enemy.x, enemy.y); 
+
+                if (enemy.health <= 0) {
+                    explosion = { 
+                        x: enemy.x, 
+                        y: enemy.y, 
+                        width: enemy.width,  
+                        height: enemy.height, 
+                        startTime: Date.now() 
+                    };
                     projectiles.splice(pIndex, 1);
-                    enemy.health -= projectileForce;
-                    displayDamage((projectileForce * 1000).toString(), enemy.x, enemy.y); 
-        
-                    if (enemy.health <= 0) {
-                        explosion = { 
-                            x: enemy.x, 
-                            y: enemy.y, 
-                            width: enemy.width,  
-                            height: enemy.height, 
-                            startTime: Date.now() 
-                        };
-                        projectiles.splice(pIndex, 1);
-                        enemies.splice(index, 1);
-        
-                        const multiplier = getScoreMultiplier(previousDistance);
-                        score += 1 * multiplier;
-                        paperBalls += 1 * multiplicateurPaperBalls;
-                        totalMonstersKilled++;
-                        totalPaperBalls += 1 * multiplicateurPaperBalls;
-                        updateStats();
-                    }
+                    enemies.splice(index, 1);
+
+                    const multiplier = getScoreMultiplier(previousDistance);
+                    score += 1 * multiplier;
+                    paperBalls += 1 * multiplicateurPaperBalls;
+                    totalMonstersKilled++;
+                    totalPaperBalls += 1 * multiplicateurPaperBalls;
+                    updateStats();
                 }
-            });
+            }
         });
 
         if (
