@@ -350,7 +350,6 @@ function updateMenuIcon() {
     }
 }
 
-// Charger le personnage sélectionné au chargement de la page
 window.addEventListener('load', loadSelectedCharacter);
 
 let boss = null;
@@ -432,7 +431,6 @@ function displayDamage(text, x, y) {
 
 function handleBossCollision() {
     if (!currentBoss) {
-        console.log("handleBossCollision: currentBoss is null, skipping collision detection");
         return; 
     }
 
@@ -449,8 +447,9 @@ function handleBossCollision() {
             proj.y < currentBoss.y + currentBoss.height &&
             proj.height + proj.y > currentBoss.y
         ) {
-            projectiles.splice(pIndex, 1);
+            
             currentBoss.health -= projectileForce;
+            projectiles.splice(pIndex, 2);
             displayDamage((projectileForce * 1000).toString(), currentBoss.x + randomX, currentBoss.y + randomY);
             if (currentBoss.health <= 0) {
                 explosion = { 
@@ -460,6 +459,7 @@ function handleBossCollision() {
                     height: currentBoss.height, 
                     startTime: Date.now() 
                 }; 
+                projectiles.splice(pIndex, 1);
                 currentBoss = null; 
                 bossActive = false;
                 bossProjectiles.length = 0; 
@@ -542,6 +542,7 @@ function drawPlayContent() {
                             height: enemy.height, 
                             startTime: Date.now() 
                         };
+                        projectiles.splice(pIndex, 1);
                         enemies.splice(index, 1);
         
                         const multiplier = getScoreMultiplier(previousDistance);
@@ -655,7 +656,6 @@ function drawDamageText() {
         }
     }
     
-    // Filtrer et retirer les objets de dégâts inactifs
     for (let i = damageTexts.length - 1; i >= 0; i--) {
         if (!damageTexts[i].isActive) {
             damageTexts.splice(i, 1);
