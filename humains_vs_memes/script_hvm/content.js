@@ -66,13 +66,13 @@ imageSrcs.forEach((src, index) => {
     img.onload = () => {
         images[index] = img;
         imagesLoaded++;
-        console.log(`Image ${index} loaded from ${src}`);
+        //console.log(`Image ${index} loaded from ${src}`);
         if (imagesLoaded === imageSrcs.length) {
             drawCharacterContent();  
         }
     };
     img.onerror = () => {
-        console.error(`Error loading image at ${src}`);
+        //console.error(`Error loading image at ${src}`);
     };
 });
 
@@ -82,10 +82,10 @@ enemyImageSrcs.forEach((src, index) => {
     img.src = src;
     img.onload = () => {
         enemyImages[index] = img;
-        console.log(`Enemy Image ${index} loaded from ${src}`);
+        //console.log(`Enemy Image ${index} loaded from ${src}`);
     };
     img.onerror = () => {
-        console.error(`Error loading enemy image at ${src}`);
+        //console.error(`Error loading enemy image at ${src}`);
     };
 });
 
@@ -103,7 +103,7 @@ function saveSelectedCharacter(index) {
 }
 
 function drawInventoryContent() {
-    console.log("drawInventoryContent called");
+    //console.log("drawInventoryContent called");
     context.clearRect(0, 0, canvas.width, canvas.height); 
     context.fillStyle = '#000000';
     context.font = '30px Arial';
@@ -271,7 +271,7 @@ canvas.addEventListener('mousemove', (event) => {
 
 // Fonction pour dessiner le contenu du mode 'character'
 function drawCharacterContent() {
-    console.log("drawCharacterContent called");
+    //console.log("drawCharacterContent called");
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = '#000000';
     context.font = '20px Arial';
@@ -504,7 +504,7 @@ function drawPlayContent() {
         }
     });
 
-    const distance = Math.floor(gameDuration * enemySpeed);
+    const distance = Math.floor(gameDuration * enemySpeed / 3);
     adjustBossProperties(distance);
 
     if (!bossActive) {
@@ -695,7 +695,7 @@ function getScoreMultiplier(distance) {
 }
 
 function adjustSpawnProbability() {
-    const distance = gameDuration * enemySpeed;
+    const distance = gameDuration * enemySpeed / 3;
 
     if (distance < 1000) {
         enemiesPerCycle = 1;
@@ -747,7 +747,7 @@ function adjustSpawnProbability() {
 }
 
 function adjustEnemyHealth() {
-    const distance = gameDuration * enemySpeed;
+    const distance = gameDuration * enemySpeed / 3;
 
     if (distance < 1000) {
         enemyHealth = 1;
@@ -783,7 +783,7 @@ function spawnEnemy() {
             const imageIndex = (i + gameDuration / spawnInterval) % enemyImages.length;
             const image = enemyImages[imageIndex];
             enemies.push({ x, y, width: enemyWidth, height: enemyHeight, health: enemyHealth, image });
-            console.log(enemySpeed);
+            //console.log(enemySpeed);
         }
     }
 }
@@ -899,3 +899,65 @@ function processInventoryButtonInteraction(x, y) {
         }
     }
 }
+
+// Gestion du survol et du clic pour sélectionner une image
+canvas.addEventListener('mousemove', handleCharacterMouseMove);
+canvas.addEventListener('click', handleCharacterClick);
+canvas.addEventListener('touchstart', handleCharacterTouchStart, { passive: false });
+
+function handleCharacterMouseMove(event) {
+    if (currentMode !== 'character') return; // Ne rien faire si on n'est pas en mode 'character'
+    
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    let hovering = false;
+    for (let i = 0; i < imageRects.length; i++) {
+        const { x, y, width, height } = imageRects[i];
+        if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
+            canvas.style.cursor = 'pointer';
+            hovering = true;
+            break;
+        }
+    }
+
+    if (!hovering) {
+        canvas.style.cursor = 'default';
+    }
+}
+
+function handleCharacterClick(event) {
+    if (currentMode !== 'character') return; // Ne rien faire si on n'est pas en mode 'character'
+    
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    processCharacterSelection(mouseX, mouseY);
+}
+
+function handleCharacterTouchStart(event) {
+    if (currentMode !== 'character') return; // Ne rien faire si on n'est pas en mode 'character'
+    
+    event.preventDefault(); // Empêche les autres actions par défaut sur mobile
+    const rect = canvas.getBoundingClientRect();
+    const touchX = event.touches[0].clientX - rect.left;
+    const touchY = event.touches[0].clientY - rect.top;
+
+    processCharacterSelection(touchX, touchY);
+}
+
+function processCharacterSelection(x, y) {
+    for (let i = 0; i < imageRects.length; i++) {
+        const { x: rectX, y: rectY, width, height } = imageRects[i];
+        if (x >= rectX && x <= rectX + width && y >= rectY && y <= rectY + height) {
+            selectedImageIndex = i;  // Sauvegarder l'indice de l'image sélectionnée
+            saveSelectedCharacter(i);  // Sauvegarder dans le stockage local
+            updateMenuIcon();
+            drawCharacterContent();  // Redessiner le contenu pour mettre à jour la bordure de sélection
+            break;
+        }
+    }
+}
+

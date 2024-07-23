@@ -58,7 +58,7 @@ resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
 function showMenu() {
-    console.log("Show menu");
+    //console.log("Show menu");
     stopGameLoop();
     updateMenuStats();
     menu.style.display = 'flex';
@@ -68,7 +68,7 @@ function showMenu() {
 
 // Fonction pour afficher le canvas
 function showCanvas() {
-    console.log("Show canvas");
+    //console.log("Show canvas");
     menu.style.display = 'none';
     canvas.style.display = 'block';
     resizeCanvas();
@@ -329,7 +329,7 @@ window.addEventListener('load', loadStats);
 
 // Écouteurs pour les boutons du menu
 playButton.addEventListener('click', () => {
-    console.log("Play button clicked");
+    //console.log("Play button clicked");
     showCanvas();
     resetGame();
     currentMode = 'play';
@@ -338,14 +338,14 @@ playButton.addEventListener('click', () => {
 });
 
 characterButton.addEventListener('click', () => {
-    console.log("Character button clicked");
+    //console.log("Character button clicked");
     showCanvas();
     currentMode = 'character';
     gameLoop();
 });
 
 inventoryButton.addEventListener('click', () => {
-    console.log("Inventory button clicked");
+    //console.log("Inventory button clicked");
     showCanvas();
     currentMode = 'inventory';
     gameLoop();

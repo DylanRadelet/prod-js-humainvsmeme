@@ -61,7 +61,7 @@ function updateMenuStats() {
 }
 
 playButton.addEventListener('click', () => {
-    console.log("Play button clicked");
+    //console.log("Play button clicked");
     showCanvas();
     resetGame();
     currentMode = 'play';
@@ -70,14 +70,14 @@ playButton.addEventListener('click', () => {
 });
 
 characterButton.addEventListener('click', () => {
-    console.log("Character button clicked");
+    //console.log("Character button clicked");
     showCanvas();
     currentMode = 'character';
     gameLoop();
 });
 
 inventoryButton.addEventListener('click', () => {
-    console.log("Inventory button clicked");
+    //console.log("Inventory button clicked");
     showCanvas();
     currentMode = 'inventory'; 
     gameLoop();
