@@ -23,7 +23,7 @@ function gameLoop() {
     if (currentMode !== 'menu') {
         drawBackButton();  
     }
-
+    drawDamageText();
     gameLoopId = requestAnimationFrame(gameLoop);  // Appelle gameLoop de manière récursive pour créer une boucle
 }
 

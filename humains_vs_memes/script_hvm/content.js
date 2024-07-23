@@ -8,6 +8,7 @@ const explosionImage = new Image();
 projectileImageBoss.src = './assets_hvm/images/projectile/chartreuse-verte.png'; 
 projectileImage.src = './assets_hvm/images/projectile/projectile.png'; 
 explosionImage.src = './assets_hvm/images/explosion.png'; 
+const damageTexts = [];
 
 const imageSrcs = [
     './assets_hvm/images/humain/humain-01.webp', 
@@ -418,11 +419,25 @@ function handleBossProjectiles() {
     });
 }
 
+function displayDamage(text, x, y) {
+    const damageText = {
+        text: text,
+        x: x,
+        y: y,
+        startTime: Date.now(),
+        isActive: true
+    };
+    damageTexts.push(damageText);
+}
+
 function handleBossCollision() {
     if (!currentBoss) {
         console.log("handleBossCollision: currentBoss is null, skipping collision detection");
         return; 
     }
+
+    const randomX = Math.floor(Math.random() * 11) + 20; // 20 & 30
+    const randomY = Math.floor(Math.random() * 21) + 90; // 90 & 110
 
     projectiles.forEach((proj, pIndex) => {
         if (!currentBoss) {
@@ -436,7 +451,7 @@ function handleBossCollision() {
         ) {
             projectiles.splice(pIndex, 1);
             currentBoss.health -= projectileForce;
-            displayDamage(projectileForce*(1000).toString(), currentBoss.x, currentBoss.y); // Afficher les dégâts sous forme de "*1000"
+            displayDamage((projectileForce * 1000).toString(), currentBoss.x + randomX, currentBoss.y + randomY);
             if (currentBoss.health <= 0) {
                 explosion = { 
                     x: currentBoss.x, 
@@ -454,13 +469,12 @@ function handleBossCollision() {
 
                 paperBalls += 25 * multiplicateurPaperBalls;
                 totalMonstersKilled++;
-                totalPaperBalls++;
+                totalPaperBalls += 25 * multiplicateurPaperBalls;
                 updateStats();
             }
         }
     });
 }
-
 
 const distanceLogInterval = 100;
 let lastLoggedDistance = 0;
@@ -509,34 +523,36 @@ function drawPlayContent() {
         }
 
         projectiles.forEach((proj, pIndex) => {
-            if (
-                proj.x < enemy.x + enemy.width &&
-                proj.x + proj.width > enemy.x &&
-                proj.y < enemy.y + enemy.height &&
-                proj.height + proj.y > enemy.y
-            ) {
-                projectiles.splice(pIndex, 1);
-                enemy.health -= projectileForce;
-                displayDamage(projectileForce*(1000).toString(), enemy.x, enemy.y); 
-
-                if (enemy.health <= 0) {
-                    explosion = { 
-                        x: enemy.x, 
-                        y: enemy.y, 
-                        width: enemy.width,  
-                        height: enemy.height, 
-                        startTime: Date.now() 
-                    };
-                    enemies.splice(index, 1);
-
-                    const multiplier = getScoreMultiplier(previousDistance);
-                    score += 1 * multiplier;
-                    paperBalls += 1 * multiplicateurPaperBalls;
-                    totalMonstersKilled++;
-                    totalPaperBalls++;
-                    updateStats();
+            enemies.forEach((enemy, index) => {
+                if (
+                    proj.x < enemy.x + enemy.width &&
+                    proj.x + proj.width > enemy.x &&
+                    proj.y < enemy.y + enemy.height &&
+                    proj.height + proj.y > enemy.y
+                ) {
+                    projectiles.splice(pIndex, 1);
+                    enemy.health -= projectileForce;
+                    displayDamage((projectileForce * 1000).toString(), enemy.x, enemy.y); 
+        
+                    if (enemy.health <= 0) {
+                        explosion = { 
+                            x: enemy.x, 
+                            y: enemy.y, 
+                            width: enemy.width,  
+                            height: enemy.height, 
+                            startTime: Date.now() 
+                        };
+                        enemies.splice(index, 1);
+        
+                        const multiplier = getScoreMultiplier(previousDistance);
+                        score += 1 * multiplier;
+                        paperBalls += 1 * multiplicateurPaperBalls;
+                        totalMonstersKilled++;
+                        totalPaperBalls += 1 * multiplicateurPaperBalls;
+                        updateStats();
+                    }
                 }
-            }
+            });
         });
 
         if (
@@ -616,31 +632,47 @@ function drawPlayContent() {
     drawDamageText(); 
 }
 
-function displayDamage(text, x, y) {
-    damageText.text = text;
-    damageText.x = x;
-    damageText.y = y;
-    damageText.startTime = Date.now();
-    damageText.isActive = true;
-}
-
 function drawDamageText() {
-    if (!damageText.isActive) return;
+    if (!damageTexts.length) return;
 
     const fadeDuration = 1000; 
     const currentTime = Date.now();
-    const elapsed = currentTime - damageText.startTime;
+    
+    for (let i = 0; i < damageTexts.length; i++) {
+        const damageText = damageTexts[i];
+        const elapsed = currentTime - damageText.startTime;
 
-    if (elapsed < fadeDuration) {
-        const fade = 1 - elapsed / fadeDuration;
-        context.globalAlpha = fade;
-        context.fillStyle = 'red';
-        context.font = 'bold 20px Arial';
-        context.fillText(damageText.text, damageText.x, damageText.y - (elapsed / fadeDuration) * 50); 
-        context.globalAlpha = 1.0;
-    } else {
-        damageText.isActive = false; 
+        if (elapsed < fadeDuration) {
+            const fade = 1 - elapsed / fadeDuration;
+            context.globalAlpha = fade;
+            context.fillStyle = 'red';
+            context.font = 'bold 22px Arial';
+            const verticalMove = 10; 
+            context.fillText(damageText.text, damageText.x, damageText.y - (elapsed / fadeDuration) * verticalMove); 
+            context.globalAlpha = 1.0;
+        } else {
+            damageText.isActive = false; 
+        }
     }
+    
+    // Filtrer et retirer les objets de dégâts inactifs
+    for (let i = damageTexts.length - 1; i >= 0; i--) {
+        if (!damageTexts[i].isActive) {
+            damageTexts.splice(i, 1);
+        }
+    }
+}
+
+
+function addDamageText(text, x, y) {
+    const damageText = {
+        text: text,
+        x: x,
+        y: y,
+        startTime: Date.now(),
+        isActive: true
+    };
+    damageTexts.push(damageText);
 }
 
 function explosionImageShow() {
