@@ -614,10 +614,10 @@ function drawPlayContent() {
     explosionImageShow();
 
     context.fillStyle = '#000000';
-    context.fillText(`Vies: ${player.lives}`, 10, 80);
-    context.fillText(`Score: ${score.toFixed(0)}`, 10, 100);
-    context.fillText(`Boulette: ${paperBalls}`, 10, 120);
-    context.fillText(`Distance: ${distance}`, 10, 140);
+    context.fillText(`Vies: ${player.lives}`, 20, 80);
+    context.fillText(`Score: ${score.toFixed(0)}`, 20, 100);
+    context.fillText(`Boulette: ${paperBalls}`, 20, 120);
+    context.fillText(`Distance: ${distance}`, 20, 140);
 
     gameDuration += 1;
     if (gameDuration % speedIncrementInterval === 0) {
@@ -833,3 +833,69 @@ window.addEventListener('load', () => {
     loadStats();
     loadCosts();
 });
+
+// Gestion des clics et touches sur les boutons de l'inventaire
+canvas.addEventListener('click', handleInventoryButtonClick);
+canvas.addEventListener('touchstart', handleInventoryButtonTouch, { passive: false });
+
+function handleInventoryButtonClick(event) {
+    if (currentMode !== 'inventory') return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    processInventoryButtonInteraction(mouseX, mouseY);
+}
+
+function handleInventoryButtonTouch(event) {
+    if (currentMode !== 'inventory') return;
+
+    event.preventDefault(); // Empêche les autres actions par défaut sur mobile
+    const rect = canvas.getBoundingClientRect();
+    const touchX = event.touches[0].clientX - rect.left;
+    const touchY = event.touches[0].clientY - rect.top;
+
+    processInventoryButtonInteraction(touchX, touchY);
+}
+
+function processInventoryButtonInteraction(x, y) {
+    const buttonWidth = 150;
+    const buttonHeight = 50;
+    const buttonPadding = 20;
+    const startX = (canvas.width - buttonWidth) / 2;
+    const startY = 150;
+
+    if (x >= startX && x <= startX + buttonWidth && y >= startY && y <= startY + buttonHeight) {
+        if (totalPaperBalls >= lifeCost) {
+            totalPaperBalls -= lifeCost;
+            achatDeLaVie += 1;
+            lifeCost = Math.floor(lifeCost * 5.5);
+            updateStats();
+            drawInventoryContent();
+            saveCosts();
+        }
+    }
+
+    if (x >= startX && x <= startX + buttonWidth && y >= startY + buttonHeight + buttonPadding && y <= startY + buttonHeight + buttonPadding + buttonHeight) {
+        if (totalPaperBalls >= strengthCost) {
+            totalPaperBalls -= strengthCost;
+            projectileForce += 1;
+            strengthCost = Math.floor(strengthCost * 10.5);
+            updateStats();
+            drawInventoryContent();
+            saveCosts();
+        }
+    }
+
+    if (x >= startX && x <= startX + buttonWidth && y >= startY + (buttonHeight + buttonPadding) * 2 && y <= startY + (buttonHeight + buttonPadding) * 2 + buttonHeight) {
+        if (totalPaperBalls >= multiplierCost) {
+            totalPaperBalls -= multiplierCost;
+            multiplicateurPaperBalls += 1;
+            multiplierCost = Math.floor(multiplierCost * 15.5);
+            updateStats();
+            drawInventoryContent();
+            saveCosts();
+        }
+    }
+}

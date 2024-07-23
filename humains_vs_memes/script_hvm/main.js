@@ -54,8 +54,6 @@ function startGameAfterCountdown() {
     }, 1000);
 }
 
-
-
 function updateMenuStats() {
     document.getElementById('distance-max').textContent = previousDistance;
     document.getElementById('meme-kill').textContent = totalMonstersKilled;
@@ -84,3 +82,4 @@ inventoryButton.addEventListener('click', () => {
     currentMode = 'inventory'; 
     gameLoop();
 });
+

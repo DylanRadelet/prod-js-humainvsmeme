@@ -41,7 +41,7 @@ body, html {
     background-color: #C6FE20;
     width: 100px;
     height: 100px;
-    border: solid 3px black;
+    border: solid 2px black;
 }
 
 .choix-character{
@@ -102,6 +102,8 @@ button{
     -webkit-box-shadow:0px 0px 5px 1px #454545;
     -moz-box-shadow:0px 0px 5px 1px #454545;
     box-shadow:0px 0px 5px 1px #454545;
+    border: solid 2px black;
+
 }
 
 /********************************
@@ -118,18 +120,20 @@ button{
     overflow: auto; 
     background-color: rgb(0,0,0); 
     background-color: rgba(0,0,0,0.4); 
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
-    background-image: url(../assets_hvm/images/background.webp);
+    background-color: #ffffff;
     overflow: hidden;
     background-size: cover;
-    border-radius: 25px;
-    margin: 20% auto; 
+
     padding: 20px;
     border: 1px solid #888;
     width: 300px; 
     text-align: center;
+    border: solid 2px black;
 }
 
 .modal-content button {
@@ -152,7 +156,7 @@ button{
     left: 50%;
     transform: translate(-50%, -50%);
     background: white;
-    border: 1px solid black;
+    border: solid 2px black;
     padding: 20px;
     z-index: 1000;
 }

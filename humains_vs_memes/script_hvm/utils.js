@@ -26,7 +26,7 @@ imgGameOver.src = './assets_hvm/images/Game_Over.png';
 // Variables de jeu
 let currentMode = 'menu';
 let selectedDistance = 0;
-let backButton = { x: 10, y: 25, size: 20 };
+let backButton = { x: 20, y: 25, size: 20 };
 let gameLoopId;
 let projectiles = [];
 let enemies = [];
@@ -85,7 +85,7 @@ function movePlayer(event) {
 // Fonction pour gérer les déplacements tactiles du joueur
 function movePlayerTouch(event) {
     const rect = canvas.getBoundingClientRect();
-    const touchX = event.touches[0].clientX - rect.left;
+    const touchX = event.touches[0].clientX - rect.left - 50;
 
     if (touchX > 0 && touchX < canvas.width - player.width) {
         player.x = touchX;
@@ -108,13 +108,25 @@ canvas.addEventListener('click', shootProjectile);
 
 // Ajoutez des écouteurs d'événements pour les touches tactiles
 canvas.addEventListener('touchmove', (event) => {
-    event.preventDefault();
-    movePlayerTouch(event);
+    if (!gameOver) {
+        event.preventDefault();
+        movePlayerTouch(event);
+    }
 }, { passive: false });
 
 canvas.addEventListener('touchstart', (event) => {
-    event.preventDefault();
-    shootProjectileTouch(event);
+    if (!gameOver) {
+        event.preventDefault();
+        movePlayerTouch(event); // Déplacer le joueur
+        startShooting();
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchend', (event) => {
+    if (!gameOver) {
+        event.preventDefault();
+        stopShooting();
+    }
 }, { passive: false });
 
 // Fonction pour dessiner la croix de retour sur le canvas
@@ -145,6 +157,20 @@ canvas.addEventListener('click', (event) => {
         showModal();
     }
 });
+
+canvas.addEventListener('touchstart', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const touchX = event.touches[0].clientX - rect.left;
+    const touchY = event.touches[0].clientY - rect.top;
+
+    const { x, y, size } = backButton;
+
+    if (touchX >= x && touchX <= x + size && touchY >= y && touchY <= y + size) {
+        event.preventDefault(); // Empêche les autres actions par défaut sur mobile
+        pauseGame();
+        showModal();
+    }
+}, { passive: false });
 
 let gameOver = false;
 
@@ -187,7 +213,7 @@ function resumeGame() {
 }
 
 function showModal() {
-    confirmModal.style.display = 'block';
+    confirmModal.style.display = 'flex';
 }
 
 function hideModal() {
@@ -406,3 +432,20 @@ function startGameAtSelectedDistance() {
 distanceButton.addEventListener('click', () => {
     showDistanceModal();
 });
+
+let shootingInterval;
+const shootingIntervalTime = 220;
+
+// Fonction pour commencer à tirer des projectiles en continu
+function startShooting() {
+    shootProjectile(); // Tir initial
+    shootingInterval = setInterval(() => {
+        shootProjectile();
+    }, shootingIntervalTime);
+}
+
+// Fonction pour arrêter le tir continu
+function stopShooting() {
+    clearInterval(shootingInterval);
+}
+
