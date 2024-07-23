@@ -24,7 +24,7 @@ body, html {
     flex-direction: column;
     background-image: url(../assets_hvm/images/background.webp);
     background-size: cover;
-    border-radius: 25px;
+    
 }
 
 #menu{

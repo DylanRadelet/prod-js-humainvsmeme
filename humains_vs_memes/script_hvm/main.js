@@ -1,17 +1,10 @@
-let gameStarted = false;
-let countdown = 3; 
-let gameLoopId;
-let distance = 0;
-let previousDistance = 0;
-let currentMode = 'menu'; // Initialiser le mode actuel à 'menu'
-
 function gameLoop() {
-    context.clearRect(0, 0, canvas.width, canvas.height);  // Efface le canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);  
 
     if (currentMode === 'play') {
         if (!gameStarted) {
             drawCountdown();
-        } else {
+        } else if (!gameOver) {  
             drawPlayContent();
         }
     } else if (currentMode === 'character') {
@@ -23,8 +16,10 @@ function gameLoop() {
     if (currentMode !== 'menu') {
         drawBackButton();  
     }
-    drawDamageText();
-    gameLoopId = requestAnimationFrame(gameLoop);  // Appelle gameLoop de manière récursive pour créer une boucle
+
+    if (!gameOver) {  
+        gameLoopId = requestAnimationFrame(gameLoop);  
+    }
 }
 
 // Fonction pour arrêter la boucle de jeu
@@ -54,14 +49,7 @@ function startGameAfterCountdown() {
     }, 1000);
 }
 
-function updateMenuStats() {
-    document.getElementById('distance-max').textContent = previousDistance;
-    document.getElementById('meme-kill').textContent = totalMonstersKilled;
-    document.getElementById('boulette-papier').textContent = totalPaperBalls;
-}
-
 playButton.addEventListener('click', () => {
-    //console.log("Play button clicked");
     showCanvas();
     resetGame();
     currentMode = 'play';
@@ -70,16 +58,13 @@ playButton.addEventListener('click', () => {
 });
 
 characterButton.addEventListener('click', () => {
-    //console.log("Character button clicked");
     showCanvas();
     currentMode = 'character';
     gameLoop();
 });
 
 inventoryButton.addEventListener('click', () => {
-    //console.log("Inventory button clicked");
     showCanvas();
     currentMode = 'inventory'; 
     gameLoop();
 });
-
