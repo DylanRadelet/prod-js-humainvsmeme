@@ -1,5 +1,7 @@
+let isShooting = false;
+
+// Fonction pour afficher le menu
 function showMenu() {
-    //console.log("Show menu");
     stopGameLoop();
     updateStats();
     menu.style.display = 'flex';
@@ -9,7 +11,6 @@ function showMenu() {
 
 // Fonction pour afficher le canvas
 function showCanvas() {
-    //console.log("Show canvas");
     menu.style.display = 'none';
     canvas.style.display = 'block';
     resizeCanvas();
@@ -104,14 +105,6 @@ canvas.addEventListener('touchmove', (event) => {
     }
 }, { passive: false });
 
-canvas.addEventListener('touchstart', (event) => {
-    if (!gameOver) {
-        event.preventDefault();
-        movePlayerTouch(event); // Déplacer le joueur
-        startShooting();
-    }
-}, { passive: false });
-
 canvas.addEventListener('touchend', (event) => {
     if (!gameOver) {
         event.preventDefault();
@@ -137,7 +130,6 @@ function handleGameOverClick(event) {
 
 // Écouteurs pour les boutons du menu
 playButton.addEventListener('click', () => {
-    //console.log("Play button clicked");
     showCanvas();
     resetGame();
     currentMode = 'play';
@@ -146,14 +138,12 @@ playButton.addEventListener('click', () => {
 });
 
 characterButton.addEventListener('click', () => {
-    //console.log("Character button clicked");
     showCanvas();
     currentMode = 'character';
     gameLoop();
 });
 
 inventoryButton.addEventListener('click', () => {
-    //console.log("Inventory button clicked");
     showCanvas();
     currentMode = 'inventory';
     gameLoop();
@@ -164,24 +154,12 @@ canvas.addEventListener('mousemove', (event) => {
         movePlayer(event);
     }
 });
-canvas.addEventListener('click', (event) => {
-    if (!gameOver) {
-        shootProjectile(event);
-    }
-});
 
 // Ajoutez des écouteurs d'événements pour les touches tactiles
 canvas.addEventListener('touchmove', (event) => {
     if (!gameOver) {
         event.preventDefault();
         movePlayerTouch(event);
-    }
-}, { passive: false });
-
-canvas.addEventListener('touchstart', (event) => {
-    if (!gameOver) {
-        event.preventDefault();
-        shootProjectileTouch(event);
     }
 }, { passive: false });
 
@@ -205,19 +183,6 @@ function showDistanceModal() {
 
 function hideDistanceModal() {
     distanceModal.style.display = 'none';
-}
-
-// Fonction pour commencer à tirer des projectiles en continu
-function startShooting() {
-    shootProjectile(); // Tir initial
-    shootingInterval = setInterval(() => {
-        shootProjectile();
-    }, shootingIntervalTime);
-}
-
-// Fonction pour arrêter le tir continu
-function stopShooting() {
-    clearInterval(shootingInterval);
 }
 
 function handleCharacterClick(event) {
@@ -317,5 +282,43 @@ function processInventoryButtonInteraction(x, y) {
             drawInventoryContent();
             saveAll();
         }
+    }
+}
+
+canvas.addEventListener('touchstart', (event) => {
+    if (!gameOver) {
+        event.preventDefault();
+        movePlayerTouch(event); 
+        if (!isShooting) {
+            startShooting();
+        }
+        isShooting = true;
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchend', (event) => {
+    if (!gameOver) {
+        event.preventDefault();
+        stopShooting(); 
+        isShooting = false;
+    }
+}, { passive: false });
+
+function startShooting() {
+    if (shootingInterval) {
+        clearInterval(shootingInterval);
+    }
+
+    shootProjectile();
+
+    shootingInterval = setInterval(() => {
+        shootProjectile();
+    }, shootingIntervalTime);
+}
+
+function stopShooting() {
+    if (shootingInterval) {
+        clearInterval(shootingInterval);
+        shootingInterval = null; 
     }
 }

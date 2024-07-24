@@ -88,17 +88,18 @@ function showGameOver() {
     canvas.addEventListener('touchstart', handleGameOverClick, { passive: false });
 }
 
-
-
 function pauseGame() {
     stopGameLoop();
 }
 
 function resumeGame() {
-    gameLoop();
+    if (!gameOver) {
+        gameLoop(); // Redémarre la boucle de jeu si le jeu n'est pas terminé
+    }
 }
 
 function showModal() {
+    stopGameLoop();
     confirmModal.style.display = 'flex';
 }
 
@@ -116,37 +117,6 @@ confirmNo.addEventListener('click', () => {
     hideModal();
     resumeGame();
 });
-
-function stopGameLoop() {
-    if (gameLoopId) {
-        cancelAnimationFrame(gameLoopId);
-        gameLoopId = null;
-    }
-}
-
-function gameLoop() {
-    context.clearRect(0, 0, canvas.width, canvas.height);  
-
-    if (currentMode === 'play') {
-        if (!gameStarted) {
-            drawCountdown();
-        } else if (!gameOver) {  
-            drawPlayContent();
-        }
-    } else if (currentMode === 'character') {
-        drawCharacterContent();
-    } else if (currentMode === 'inventory') {
-        drawInventoryContent();
-    }
-
-    if (currentMode !== 'menu') {
-        drawBackButton();  
-    }
-
-    if (!gameOver) {  
-        gameLoopId = requestAnimationFrame(gameLoop);  
-    }
-}
 
 function drawCountdown() {
     context.fillStyle = '#000000';
@@ -177,20 +147,20 @@ function resetGame(distance = 0) {
     enemies = [];
     score = 0;
     paperBalls = 0;
-    totalDistance = distance;  // Initialize totalDistance
-    gameDuration = 0; 
+    totalDistance = distance;  
+    gameDuration = distance * 3 / 0.5;  
     enemySpeed = 0.5; 
     spawnProbability = 0.01;
 }
 
 function updateDistanceOptions() {
     distanceOptions.innerHTML = '';
-    for (let i = 0; i <= previousDistance; i += 1000) {
+    for (let i = 0; i+2 <= previousDistance; i += 1000) {
         if (i > 0) {
             const option = document.createElement('button');
             option.textContent = `${i} mètres`;
             option.addEventListener('click', () => {
-                selectedDistance = i;
+                selectedDistance = Math.floor((i / 6));  
                 updateSelectedOption(option);
             });
             distanceOptions.appendChild(option);

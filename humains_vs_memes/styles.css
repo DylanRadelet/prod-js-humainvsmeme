@@ -165,6 +165,8 @@ button{
     display: flex;
     flex-direction: column;
     gap: 10px;
+    overflow: scroll;
+    max-height: 300px;
 }
 
 #btn-dist{

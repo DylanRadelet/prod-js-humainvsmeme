@@ -1,4 +1,7 @@
 function drawPlayContent() {
+    let distance = gameDuration;
+    let level = 1;
+
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = '#000000';
     context.font = '20px Arial';
@@ -8,12 +11,15 @@ function drawPlayContent() {
         context.drawImage(playerImage, player.x, player.y, player.width, player.height);
     }
     
-    console.log(`Projectiles: ${projectiles.length}, Enemies: ${enemies.length}`);
+    // console.log(`Projectiles: ${projectiles.length}, Enemies: ${enemies.length}, speed: ${enemySpeed}`);
 
     projectiles.forEach((proj, index) => {
         proj.width = 24;
         proj.height = 24;
         proj.y -= 5;
+        if (proj.y < 0) {
+            projectiles.splice(index, 1);
+        }
         if (projectileImage.complete) {
             context.drawImage(projectileImage, proj.x - 12, proj.y, proj.width, proj.height);
         } else {
@@ -23,25 +29,55 @@ function drawPlayContent() {
         if (proj.y < 0) {
             projectiles.splice(index, 1);
         }
-    });
+    });    
 
-    // Mettez à jour la distance totale parcourue
     totalDistance += enemySpeed / 5;
-    const distance = Math.floor(totalDistance);
     
-    //console.log(`gameDuration: ${gameDuration}, enemySpeed: ${enemySpeed}, distance: ${distance}`);
-
+    console.log(`gameDuration: ${Math.floor(gameDuration)}, enemySpeed: ${enemySpeed}, distance: ${Math.floor(distance)}`);
     
     adjustBossProperties(distance);
 
+    level = Math.floor(distance/1000) ;
+    if (distance < 1002) {
+        enemySpeed = 0.5;
+        enemyHealth = 1;
+    }
+    else if (distance < 2002) {
+        enemySpeed = 0.8;
+        enemyHealth = 3;
+    }
+    else if (distance < 3002) {
+        enemySpeed = 1.2;
+        enemyHealth = 5;
+    }
+    else if (distance < 4002) {
+        enemySpeed = 1.7;
+        enemyHealth = 7;
+    }
+    else if (distance < 5002) {
+        enemySpeed = 2.3;
+        enemyHealth = 9;
+    }
+    else if (distance < 6002) {
+        enemySpeed = 3;
+        enemyHealth = 11;
+    }
+
     if (!bossActive) {
         adjustSpawnProbability();
-        adjustEnemyHealth();
         spawnEnemy();
+    }
+    if (bossActive === true) {
+        distance = (1000 * level) + 1;
+        gameDuration = (1000 * level) + 1;
+    }
+    else if(bossActive === false){
+        distance = gameDuration;
     }
 
     enemies.forEach((enemy, index) => {
         enemy.y += enemySpeed;
+        
         if (enemy.image) {
             context.drawImage(enemy.image, enemy.x, enemy.y, enemy.width, enemy.height);
         } else {
@@ -68,8 +104,7 @@ function drawPlayContent() {
                         height: enemy.height, 
                         startTime: Date.now() 
                     };
-                    projectiles.splice(pIndex, 1);
-                    enemies.splice(index, 1);
+                    enemies.splice(index, 1);  
 
                     const multiplier = getScoreMultiplier(previousDistance);
                     score += 1 * multiplier;
@@ -105,7 +140,7 @@ function drawPlayContent() {
 
     if (bossActive && currentBoss) {
         if (currentBoss.y < 150) {
-            currentBoss.y += currentBoss.speed;
+            currentBoss.y += enemySpeed + 0.3;
         } else {
             const distanceToPlayerX = Math.abs(player.x - currentBoss.x);
             if (distanceToPlayerX > 5) {
@@ -127,7 +162,7 @@ function drawPlayContent() {
                 y: currentBoss.y + currentBoss.height,
                 width: 24,
                 height: 24,
-                speed: 5
+                speed: 4
             };
             bossProjectiles.push(projectile);
         }
@@ -142,36 +177,32 @@ function drawPlayContent() {
     context.fillText(`Vies: ${player.lives}`, 20, 80);
     context.fillText(`Score: ${score.toFixed(0)}`, 20, 100);
     context.fillText(`Boulette: ${paperBalls}`, 20, 120);
-    context.fillText(`Distance: ${distance}`, 20, 140);
+    context.fillText(`Distance: ${Math.floor(distance)}`, 20, 140);
 
     gameDuration += 0.1;
-    if (distance === 1000) {
-        enemySpeed += speedIncrement;
-    }
-    else if (distance === 2000) {
-        enemySpeed += speedIncrement;
-    }
-    else if (distance === 3000) {
-        enemySpeed += speedIncrement;
-    }
-    else if (distance === 4000) {
-        enemySpeed += speedIncrement;
-    }
-    else if (distance === 5000) {
-        enemySpeed += speedIncrement;
-    }
-    else if (distance === 6000) {
-        enemySpeed += speedIncrement;
-    }
-    else if (distance === 7000) {
-        enemySpeed += speedIncrement;
-    }
+
 
     if (distance > previousDistance) {
         previousDistance = distance;
-        document.getElementById('distance-max').textContent = previousDistance;
+        document.getElementById('distance-max').textContent = Math.floor(previousDistance);
         saveAll();
     }
+
+    // if (distance < 1000) {
+    //     enemyHealth = 1;
+    // } else if (distance < 2000) {
+    //     enemyHealth = 2;
+    // } else if (distance < 3000) {
+    //     enemyHealth = 3;
+    // } else if (distance < 4000) {
+    //     enemyHealth = 4;
+    // } else if (distance < 5000) {
+    //     enemyHealth = 5;
+    // } else if (distance < 6000) {
+    //     enemyHealth = 6;
+    // } else {
+    //     enemyHealth = 7;
+    // }
     
     drawDamageText(); 
 }

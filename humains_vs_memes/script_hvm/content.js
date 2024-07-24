@@ -142,6 +142,6 @@ canvas.addEventListener('click', (event) => {
 });
 
 function getScoreMultiplier(distance) {
-    return 1 + Math.floor(distance / 200) * 0.1;
+    return 1 + Math.floor(distance / 10) * 0.1;
 }
 

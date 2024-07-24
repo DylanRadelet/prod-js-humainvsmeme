@@ -54,7 +54,7 @@ const distanceOptions = document.getElementById('distanceOptions');
 const confirmDistance = document.getElementById('confirmDistance');
 const closeDistanceModal = document.getElementById('closeDistanceModal');
 const speedIncrementInterval = 1000;
-const speedIncrement = 0.05;
+const speedIncrement = 0.5;
 const spawnIncrementInterval = 1000;
 const spawnIncrement = 0.001;
 const ColorBackBTN = "#C2C2C2";
@@ -95,6 +95,7 @@ let bossShootInterval = 100;
 let bossShootTimer = 0;
 let lastLoggedDistance = 0;
 let shootingInterval;
+let enemyHealth = 1;
 
 let damageText = {
     text: '1000',
@@ -103,6 +104,7 @@ let damageText = {
     startTime: 0,
     isActive: false
 };
+
 let player = { x: canvas.width / 2 - 50, y: canvas.height - 200, width: 100, height: 100, lives: 5 };
 let backButton = { x: 20, y: 25, size: 20 };
 
@@ -110,6 +112,6 @@ let bossProjectiles = [];
 let projectiles = [];
 let enemies = [];
 
-let distance = gameDuration * enemySpeed / 3;
+let distance = gameDuration * 0.5 / 3;
 
 

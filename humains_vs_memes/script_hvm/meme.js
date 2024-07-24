@@ -10,12 +10,13 @@ enemyImageSrcs.forEach((src, index) => {
     };
 });
 
-function adjustBossProperties(distance) {
-    if (distance % bossSpawnDistance === 0 && distance !== 0 && !bossActive) {
-        const bossHealth = 30 + (distance / bossSpawnDistance - 1) * 10;
-        const bossShootInterval = Math.max(100 - Math.floor(distance / bossSpawnDistance) * 10, 20);
+function adjustBossProperties(gameDuration) {
+    if (Math.floor(gameDuration) % bossSpawnDistance === 0 && Math.floor(gameDuration) !== 0 && !bossActive) {
+        const bossHealth = 30 + (gameDuration / bossSpawnDistance - 1) * 10;
+        const bossShootInterval = Math.max(100 - Math.floor(gameDuration / bossSpawnDistance) * 10, 20);
         spawnBoss(bossHealth, bossShootInterval);
     }
+
 }
 
 function spawnBoss(bossHealth, bossShootInterval) {
@@ -35,6 +36,7 @@ function spawnBoss(bossHealth, bossShootInterval) {
             shootTimer: 0
         };
         bossActive = true;
+        enemies.length = 0;
     };
 }
 
@@ -54,7 +56,6 @@ function handleBossProjectiles() {
             bossProjectiles.splice(index, 1);
         }
 
-        // Détecter les collisions avec le joueur
         if (
             proj.x < player.x + player.width &&
             proj.x + proj.width > player.x &&
@@ -142,25 +143,7 @@ function adjustSpawnProbability() {
     }
 }
 
-function adjustEnemyHealth() {
-    if (distance < 1000) {
-        enemyHealth += 1;
-    } else if (distance < 2000) {
-        enemyHealth += 2;
-    } else if (distance < 3000) {
-        enemyHealth += 3;
-    } else if (distance < 4000) {
-        enemyHealth += 4;
-    } else if (distance < 5000) {
-        enemyHealth += 5;
-    } else if (distance < 6000) {
-        enemyHealth += 6;
-    } else {
-        enemyHealth += 7;
-    }
-}
-
-let lastSpawnedDuration = -10; // Initialise pour s'assurer qu'un ennemi est spawné au début
+let lastSpawnedDuration = -10; 
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -178,8 +161,6 @@ function spawnEnemy() {
         const imageIndex = imgMemeRand;
         const image = enemyImages[imageIndex];
         enemies.push({ x, y, width: enemyWidth, height: enemyHeight, health: enemyHealth, image });
-        console.log(`${enemyHealth}`);
-        lastSpawnedDuration = flooredGameDuration; // Met à jour la dernière durée où un ennemi a été spawné
+        lastSpawnedDuration = flooredGameDuration; 
     }
 }
-
